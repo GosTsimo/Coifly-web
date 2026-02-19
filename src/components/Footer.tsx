@@ -65,7 +65,7 @@ export default function Footer() {
               </div>
               <div className="flex items-center gap-2 text-text-secondary text-sm">
                 <MapPin className="w-4 h-4 text-gold" />
-                <span>Casablanca, Maroc</span>
+                <span>Beni Mellal, Maroc</span>
               </div>
             </div>
           </div>
