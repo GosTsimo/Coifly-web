@@ -107,70 +107,97 @@ const PhoneMockup = () => {
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-7 bg-black rounded-b-2xl z-10" />
           
           {/* Screen Content */}
-          <div className="relative w-full h-full bg-gradient-to-b from-dark-surface to-dark p-4 pt-10">
+          <div className="relative w-full h-full bg-[#0f0f0f] p-4 pt-10 flex flex-col">
             {/* App Header */}
             <div className="flex items-center justify-between mb-4">
               <div className="w-8 h-8 rounded-full bg-gold/20 flex items-center justify-center">
-                <span className="text-gold text-xs font-bold">M</span>
+                <span className="text-gold text-xs font-bold">K</span>
               </div>
-              <div className="flex items-center gap-1 text-gold">
-                <Sparkles className="w-3 h-3" />
-                <span className="text-xs font-medium">Coifly</span>
+              <div className="flex items-center gap-1">
+                <Sparkles className="w-3 h-3 text-gold" />
+                <span className="text-gold text-xs font-bold tracking-widest">COIFLY</span>
               </div>
-              <div className="w-8 h-8 rounded-full bg-gold/20 flex items-center justify-center">
-                <span className="text-gold text-xs">🔔</span>
-              </div>
-            </div>
-            
-            {/* Location */}
-            <div className="text-text-muted text-xs mb-4">📍 Casablanca, Maroc</div>
-            
-            {/* Next Booking Card */}
-            <div className="bg-gradient-gold rounded-2xl p-4 mb-4">
-              <div className="flex items-center gap-2 mb-2">
-                <Calendar className="w-4 h-4 text-black/70" />
-                <span className="text-black/70 text-xs font-medium">Prochain RDV</span>
-              </div>
-              <div className="text-black font-bold text-lg">Beauty Luxe</div>
-              <div className="text-black/70 text-sm">Coupe femme · 14:00</div>
-              <div className="mt-3 flex items-center justify-between">
-                <div className="flex items-center gap-1">
-                  <Star className="w-3 h-3 text-black fill-black" />
-                  <span className="text-black text-xs font-medium">4.8</span>
+              <div className="relative">
+                <div className="w-8 h-8 rounded-full bg-gold/10 border border-gold/30 flex items-center justify-center">
+                  <span className="text-gold text-xs">🔔</span>
                 </div>
-                <span className="text-black font-bold text-sm">120 MAD</span>
+                <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full" />
               </div>
             </div>
-            
-            {/* Favorite Salons */}
+
+            {/* Greeting */}
             <div className="mb-3">
-              <div className="text-white text-sm font-semibold mb-2">Mes favoris</div>
-              <div className="flex gap-3">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="w-20 h-24 rounded-xl bg-dark-surface-light overflow-hidden">
-                    <div className="h-14 bg-gradient-to-br from-gold/30 to-gold/10" />
-                    <div className="p-2">
-                      <div className="text-white text-[10px] font-medium truncate">Salon {i}</div>
-                      <div className="flex items-center gap-0.5">
+              <div className="text-text-muted text-xs">Bonjour 👋</div>
+              <div className="text-white font-bold text-sm">Karim</div>
+            </div>
+
+            {/* Next Booking Card */}
+            <div className="relative bg-gradient-to-br from-[#c39c56] to-[#a07c3a] rounded-2xl p-4 mb-4 overflow-hidden">
+              <div className="absolute right-3 top-3 opacity-10">
+                <Users className="w-12 h-12 text-black" />
+              </div>
+              <div className="flex items-center gap-1.5 mb-2">
+                <Calendar className="w-3 h-3 text-black/70" />
+                <span className="text-black/70 text-[10px] font-semibold uppercase tracking-wide">Prochain RDV</span>
+              </div>
+              <div className="text-black font-bold text-base leading-tight">Barber Club</div>
+              <div className="text-black/80 text-xs mt-0.5">✂️ Coupe + Barbe · 14:00</div>
+              <div className="mt-3 flex items-center justify-between">
+                <div className="flex items-center gap-1 bg-black/10 rounded-full px-2 py-0.5">
+                  <Star className="w-2.5 h-2.5 text-black fill-black" />
+                  <span className="text-black text-[10px] font-bold">4.9</span>
+                </div>
+                <span className="text-black font-extrabold text-sm">150 MAD</span>
+              </div>
+            </div>
+
+            {/* Nearby Barbers */}
+            <div className="mb-3 flex-1">
+              <div className="flex items-center justify-between mb-2">
+                <div className="text-white text-xs font-bold">Près de toi</div>
+                <div className="text-gold text-[10px]">Voir tout</div>
+              </div>
+              <div className="space-y-2">
+                {[
+                  { name: 'Elite Barber', service: 'Coupe + Fondu', price: '80', rating: '4.9', wait: '5 min' },
+                  { name: 'Kings Cut', service: 'Rasage · Barbe', price: '60', rating: '4.7', wait: '12 min' },
+                ].map((barber, i) => (
+                  <div key={i} className="flex items-center gap-3 bg-white/5 border border-white/5 rounded-xl p-2.5">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-gold/40 to-gold/10 flex items-center justify-center flex-shrink-0">
+                      <span className="text-gold font-bold text-xs">{barber.name[0]}</span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-white text-[11px] font-semibold truncate">{barber.name}</div>
+                      <div className="text-text-muted text-[9px]">{barber.service}</div>
+                    </div>
+                    <div className="text-right flex-shrink-0">
+                      <div className="text-gold text-[10px] font-bold">{barber.price} MAD</div>
+                      <div className="flex items-center gap-0.5 justify-end">
                         <Star className="w-2 h-2 text-gold fill-gold" />
-                        <span className="text-text-muted text-[8px]">4.{i + 5}</span>
+                        <span className="text-text-muted text-[9px]">{barber.rating}</span>
                       </div>
+                      <div className="text-green-400 text-[8px]">⏱ {barber.wait}</div>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
-            
+
             {/* Bottom Nav */}
-            <div className="absolute bottom-4 left-4 right-4 flex items-center justify-around bg-dark-surface-light rounded-2xl p-3">
-              {['🏠', '🔍', '📅', '👤'].map((icon, i) => (
-                <div 
-                  key={i} 
-                  className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                    i === 0 ? 'bg-gold/20' : ''
+            <div className="flex items-center justify-around bg-white/5 border border-white/10 rounded-2xl p-2.5">
+              {[
+                { icon: '🏠', active: true },
+                { icon: '🔍', active: false },
+                { icon: '📅', active: false },
+                { icon: '👤', active: false },
+              ].map((item, i) => (
+                <div
+                  key={i}
+                  className={`w-9 h-9 rounded-xl flex items-center justify-center ${
+                    item.active ? 'bg-gold/20 border border-gold/30' : ''
                   }`}
                 >
-                  <span className="text-lg">{icon}</span>
+                  <span className="text-base">{item.icon}</span>
                 </div>
               ))}
             </div>
