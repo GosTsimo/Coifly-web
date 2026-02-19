@@ -45,9 +45,9 @@ const dashboardMetrics = [
 ];
 
 const staffMembers = [
-  { name: 'Sara', role: 'Coiffeuse', clients: 24, rating: 4.9, status: 'available' },
-  { name: 'Nadia', role: 'Coloriste', clients: 18, rating: 4.7, status: 'busy' },
-  { name: 'Lina', role: 'Styliste', clients: 21, rating: 4.8, status: 'available' },
+  { name: 'Karim', role: 'Barbier', clients: 24, rating: 4.9, status: 'available' },
+  { name: 'Youssef', role: 'Coiffeur', clients: 18, rating: 4.7, status: 'busy' },
+  { name: 'Mehdi', role: 'Styliste homme', clients: 21, rating: 4.8, status: 'available' },
 ];
 
 export default function ForSalons() {
@@ -170,7 +170,7 @@ export default function ForSalons() {
                         <Building2 className="w-5 h-5 text-gold" />
                       </div>
                       <div>
-                        <div className="text-white font-bold">Beauty Luxe</div>
+                        <div className="text-white font-bold">Barber Club</div>
                         <div className="flex items-center gap-2">
                           <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
                           <span className="text-green-500 text-xs">Ouvert · 09:00 - 19:00</span>
@@ -203,11 +203,11 @@ export default function ForSalons() {
                     </div>
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full bg-black/20 flex items-center justify-center">
-                        <span className="text-black font-bold">S</span>
+                        <span className="text-black font-bold">A</span>
                       </div>
                       <div>
-                        <div className="text-black font-bold">Salma</div>
-                        <div className="text-black/70 text-sm">Brushing · 10:00 · Sara</div>
+                        <div className="text-black font-bold">Adam</div>
+                        <div className="text-black/70 text-sm">Coupe + Barbe · 10:00 · Karim</div>
                       </div>
                     </div>
                   </div>
