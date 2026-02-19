@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Scissors, Instagram, Twitter, Linkedin, Facebook, Mail, MapPin, Phone } from 'lucide-react';
+import { Instagram, Twitter, Linkedin, Facebook, Mail, MapPin, Phone } from 'lucide-react';
 
 const footerLinks = {
   produit: [
@@ -42,12 +42,11 @@ export default function Footer() {
               className="flex items-center gap-3 mb-6"
               whileHover={{ scale: 1.02 }}
             >
-              <div className="w-10 h-10 rounded-xl bg-gradient-gold flex items-center justify-center">
-                <Scissors className="w-5 h-5 text-black" />
-              </div>
-              <span className="text-xl font-bold text-white">
-                Coi<span className="text-gold">fly</span>
-              </span>
+              <img
+                src="/images/logo.png"
+                alt="Coifly Logo"
+                className="h-10 w-auto object-contain"
+              />
             </motion.a>
             
             <p className="text-text-secondary text-sm mb-6 max-w-xs">
