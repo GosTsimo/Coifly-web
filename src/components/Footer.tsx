@@ -15,8 +15,8 @@ const footerLinks = {
     { name: 'Investisseurs', href: '#investors' },
   ],
   support: [
-    { name: 'Centre d\'aide', href: '#' },
-    { name: 'Contact', href: '#' },
+    { name: 'Centre d\'aide', href: 'https://www.oundir.tech' },
+    { name: 'Contact', href: 'https://www.oundir.tech' },
     { name: 'CGU', href: '#' },
     { name: 'Confidentialité', href: '#' },
   ],
@@ -100,7 +100,15 @@ export default function Footer() {
             <p className="text-text-muted text-sm text-center sm:text-left">
               © {new Date().getFullYear()} Coifly. Tous droits réservés.
               <span className="mx-2">·</span>
-              Fondé par <span className="text-gold">Mohamed Oundir</span>
+              Fondé par{' '}
+              <a
+                href="https://www.oundir.tech"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gold hover:text-gold/80 transition-colors cursor-pointer"
+              >
+                Mohamed Oundir
+              </a>
             </p>
 
             {/* Social Links */}
