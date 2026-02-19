@@ -45,7 +45,7 @@ export default function Footer() {
               <img
                 src="/images/logo.png"
                 alt="Coifly Logo"
-                className="h-10 w-auto object-contain"
+                className="h-16 w-auto object-contain"
               />
             </motion.a>
             
