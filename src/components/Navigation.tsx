@@ -75,7 +75,7 @@ export default function Navigation() {
               className="hidden md:block"
             >
               <a
-                href="https://github.com/GosTsimo/Coifly-web/releases/download/v1.0.1/coifly-v1.0.1.apk"
+                href="https://github.com/GosTsimo/Coifly-web/releases/download/v1.0.2/coifly-v1.0.2.apk"
                 className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-gold text-black font-semibold rounded-xl hover:shadow-gold transition-all duration-300 hover:-translate-y-0.5"
               >
                 Télécharger l'app
