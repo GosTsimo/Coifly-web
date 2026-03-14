@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.coifly.app",
+      "sha256_cert_fingerprints": [
+        "14:1B:A8:D7:16:94:25:0E:5F:2C:4B:9E:B8:2B:4B:D0:67:C2:C3:18:9B:48:02:48:65:1E:E8:77:10:24:66:EA"
+      ]
+    }
+  }
+]
