@@ -336,7 +336,7 @@ export default function Hero() {
               className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-12"
             >
               <a
-                href="https://github.com/GosTsimo/Coifly-web/releases/download/v1.0.2/coifly-v1.0.2.apk"
+                href="https://github.com/GosTsimo/Coifly-web/releases/download/v1.0.3/Coifly-v1.0.3.apk"
                 download
                 className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-gold text-black font-bold rounded-xl hover:shadow-gold-lg transition-all duration-300 hover:-translate-y-1 group"
               >
