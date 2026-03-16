@@ -540,15 +540,21 @@ export default function SalonDetailPage() {
 
       {/* ── Sticky CTA ── */}
       <div className="fixed bottom-0 left-0 right-0 z-50 px-4 pb-6 pt-4 bg-gradient-to-t from-dark via-dark/95 to-transparent">
-        <motion.button
+        <motion.div
           initial={{ y: 80, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.4 }}
-          className="w-full max-w-2xl mx-auto flex items-center justify-center gap-3 py-4 rounded-2xl bg-gold hover:bg-gold-light active:bg-gold-dark text-dark font-bold text-base transition-colors shadow-lg shadow-gold/20"
+          className="max-w-2xl mx-auto"
         >
-          <Calendar className="w-5 h-5" />
-          Réserver maintenant
-        </motion.button>
+          <Link
+            to={`/salon/${slug}/booking`}
+            state={{ salonId: salon.id, salonName: salon.name }}
+            className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl bg-gold hover:bg-gold-light active:bg-gold-dark text-dark font-bold text-base transition-colors shadow-lg shadow-gold/20"
+          >
+            <Calendar className="w-5 h-5" />
+            Réserver maintenant
+          </Link>
+        </motion.div>
       </div>
     </div>
   );

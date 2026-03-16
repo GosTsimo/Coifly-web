@@ -11,6 +11,7 @@ import AppScreens from './sections/AppScreens';
 import Download from './sections/Download';
 import Footer from './components/Footer';
 import SalonDetailPage from './pages/SalonDetailPage';
+import BookingScreenPage from './pages/BookingScreenPage';
 
 function HomePage() {
   useEffect(() => {
@@ -56,6 +57,7 @@ function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/salon/:slug" element={<SalonDetailPage />} />
+        <Route path="/salon/:slug/booking" element={<BookingScreenPage />} />
       </Routes>
     </BrowserRouter>
   );
