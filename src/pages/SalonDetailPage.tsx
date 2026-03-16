@@ -17,6 +17,7 @@ import {
   Loader2,
 } from 'lucide-react';
 import { isAuthenticated } from '../services/authService';
+import { toggleSalonFavorite } from '../services/salonsService';
 
 // ─── API Types ────────────────────────────────────────────────────────────────
 
@@ -140,9 +141,38 @@ export default function SalonDetailPage() {
   const navigate = useNavigate();
   const [activeImage, setActiveImage] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
+  const [isFavoriteLoading, setIsFavoriteLoading] = useState(false);
   const [data, setData] = useState<ApiData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  async function handleToggleFavorite(salonId: number) {
+    if (!isAuthenticated()) {
+      navigate('/login', {
+        state: {
+          redirectTo: `/salon/${slug}`,
+        },
+      });
+      return;
+    }
+
+    if (isFavoriteLoading) {
+      return;
+    }
+
+    setIsFavoriteLoading(true);
+    const result = await toggleSalonFavorite(salonId);
+
+    if (result.success) {
+      if (typeof result.is_favorite === 'boolean') {
+        setIsFavorite(result.is_favorite);
+      } else {
+        setIsFavorite((prev) => !prev);
+      }
+    }
+
+    setIsFavoriteLoading(false);
+  }
 
   useEffect(() => {
     if (!slug) return;
@@ -231,10 +261,11 @@ export default function SalonDetailPage() {
               <Share2 className="w-5 h-5 text-white" />
             </button>
             <button
-              onClick={() => setIsFavorite((f) => !f)}
+              onClick={() => void handleToggleFavorite(salon.id)}
+              disabled={isFavoriteLoading}
               className="w-10 h-10 rounded-full bg-dark/70 backdrop-blur-sm flex items-center justify-center hover:bg-dark/90 transition-colors"
             >
-              <Heart className={`w-5 h-5 transition-colors ${isFavorite ? 'fill-red-500 text-red-500' : 'text-white'}`} />
+              <Heart className={`w-5 h-5 transition-colors ${isFavorite ? 'fill-red-500 text-red-500' : 'text-white'} ${isFavoriteLoading ? 'opacity-60' : ''}`} />
             </button>
           </div>
         </div>
