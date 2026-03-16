@@ -34,148 +34,143 @@ export interface CreateBookingPayload {
   barber_assignments: Record<string, number | null>;
 }
 
-const mockServices: BookingServiceItem[] = [
-  {
-    id: 1,
-    name: 'Coupe Signature',
-    price: 140,
-    duration: 45,
-    description: 'Coupe personnalisée avec finitions premium.',
-    category: 'Coupe',
-  },
-  {
-    id: 2,
-    name: 'Barbe Précision',
-    price: 90,
-    duration: 30,
-    description: 'Taille, contours et serviette chaude.',
-    category: 'Barbe',
-  },
-  {
-    id: 3,
-    name: 'Coloration Express',
-    price: 220,
-    duration: 75,
-    description: 'Uniformisation et éclat naturel.',
-    category: 'Coloration',
-  },
-  {
-    id: 4,
-    name: 'Soin Detox',
-    price: 110,
-    duration: 35,
-    description: 'Soin profond cuir chevelu et massage.',
-    category: 'Soin',
-  },
-  {
-    id: 5,
-    name: 'Brushing Expert',
-    price: 120,
-    duration: 40,
-    description: 'Brushing structuré longue tenue.',
-    category: 'Coiffage',
-  },
-];
+const API_BASE = 'https://beautybooking-f05a760bafaf.herokuapp.com/api';
+const TOKEN_KEY = 'coifly_token';
 
-const mockBarbers: BookingBarber[] = [
-  {
-    id: 101,
-    name: 'Yassine B.',
-    photo_url: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=300&h=300&fit=crop',
-    rating_average: 4.9,
-    speciality: 'Dégradés & texture',
-    reviews_count: 214,
-    services: [{ id: 1 }, { id: 2 }, { id: 4 }],
-  },
-  {
-    id: 102,
-    name: 'Sara K.',
-    photo_url: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=300&h=300&fit=crop',
-    rating_average: 4.8,
-    speciality: 'Coloration premium',
-    reviews_count: 187,
-    services: [{ id: 1 }, { id: 3 }, { id: 5 }],
-  },
-  {
-    id: 103,
-    name: 'Rachid M.',
-    photo_url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&h=300&fit=crop',
-    rating_average: 4.7,
-    speciality: 'Barbe & rituels',
-    reviews_count: 139,
-    services: [{ id: 2 }, { id: 4 }],
-  },
-  {
-    id: 104,
-    name: 'Nora A.',
-    photo_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&h=300&fit=crop',
-    rating_average: 4.9,
-    speciality: 'Brushing & style',
-    reviews_count: 263,
-    services: [{ id: 1 }, { id: 5 }],
-  },
-];
-
-function wait(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+function getToken() {
+  return localStorage.getItem(TOKEN_KEY);
 }
 
-function addMinutes(time: string, minutesToAdd: number): string {
-  const [hours, minutes] = time.split(':').map(Number);
-  const date = new Date();
-  date.setHours(hours, minutes + minutesToAdd, 0, 0);
-  return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+function defaultHeaders() {
+  const token = getToken();
+  return {
+    'Content-Type': 'application/json',
+    Accept: 'application/json',
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
 }
 
-function createSlotsForDate(serviceIds: number[], slotInterval: number): BookingSlot[] {
-  const picked = mockServices.filter((service) => serviceIds.includes(service.id));
-  const totalDuration = Math.max(15, picked.reduce((sum, service) => sum + service.duration, 0));
-  const slotStep = Math.max(15, slotInterval || 15);
-  const starts: string[] = [];
-
-  for (let minutes = 9 * 60; minutes <= 17 * 60; minutes += slotStep) {
-    const hour = Math.floor(minutes / 60);
-    const minute = minutes % 60;
-    starts.push(`${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`);
+async function parseResponse(response: Response) {
+  let body: any = null;
+  try {
+    body = await response.json();
+  } catch {
+    body = null;
   }
 
-  return starts.map((start, index) => ({
-    start_time: start,
-    end_time: addMinutes(start, totalDuration),
-    available: index % 4 !== 3,
-    total_duration: totalDuration,
-    is_single_barber: serviceIds.length === 1,
-    services: picked.map((service) => ({ id: service.id, name: service.name })),
-  }));
+  if (!response.ok) {
+    throw new Error(body?.message || `API error (${response.status})`);
+  }
+
+  return body;
 }
 
-export async function getSalonServices(_salonId: number): Promise<{ services: BookingServiceItem[] }> {
-  await wait(450);
-  return { services: mockServices };
+function normalizeService(raw: any): BookingServiceItem {
+  return {
+    id: Number(raw?.id),
+    name: raw?.name || raw?.service_name || '',
+    price: Number(raw?.price || 0),
+    duration: Number(raw?.duration || 0),
+    description: raw?.description || '',
+    category: raw?.category || '',
+  };
+}
+
+function normalizeBarber(raw: any): BookingBarber {
+  return {
+    id: Number(raw?.id || raw?.barber_id || 0),
+    name: raw?.name || raw?.first_name || '',
+    photo_url: raw?.photo_url || raw?.photo || raw?.avatar || raw?.image || '',
+    rating_average: Number(raw?.rating_average || raw?.rating || raw?.average_rating || 0),
+    speciality: raw?.speciality || raw?.specialty || raw?.bio || '',
+    reviews_count: Number(raw?.reviews_count || 0),
+    services: Array.isArray(raw?.services)
+      ? raw.services.map((service: any) => ({ id: Number(service?.id) })).filter((service: { id: number }) => service.id > 0)
+      : [],
+  };
+}
+
+function normalizeSlot(raw: any): BookingSlot {
+  return {
+    start_time: raw?.start_time || raw?.time || '',
+    end_time: raw?.end_time || '',
+    available: raw?.available !== false,
+    total_duration: Number(raw?.total_duration || 0),
+    is_single_barber: Boolean(raw?.is_single_barber),
+    services: Array.isArray(raw?.services)
+      ? raw.services.map((service: any) => ({ id: Number(service?.id), name: service?.name || '' }))
+      : [],
+  };
+}
+
+export async function getSalonServices(salonId: number): Promise<{ services: BookingServiceItem[] }> {
+  try {
+    const response = await fetch(`${API_BASE}/salons/${salonId}/services`, {
+      method: 'GET',
+      headers: defaultHeaders(),
+    });
+    const body = await parseResponse(response);
+    const data = body?.data || body;
+    const services = Array.isArray(data?.services) ? data.services : Array.isArray(data) ? data : [];
+    return { services: services.map(normalizeService).filter((service) => service.id > 0) };
+  } catch {
+    return { services: [] };
+  }
 }
 
 export async function getBarbersByServices(
-  _salonId: number,
+  salonId: number,
   serviceIds: number[]
 ): Promise<{ barbers: BookingBarber[] }> {
-  await wait(500);
-  const requested = new Set(serviceIds);
-  const barbers = mockBarbers.filter((barber) => barber.services.some((service) => requested.has(service.id)));
-  return { barbers };
+  try {
+    const response = await fetch(`${API_BASE}/reservations/barbers-by-services`, {
+      method: 'POST',
+      headers: defaultHeaders(),
+      body: JSON.stringify({
+        salon_id: salonId,
+        service_ids: serviceIds,
+      }),
+    });
+    const body = await parseResponse(response);
+    const data = body?.data || body;
+    const barbers = Array.isArray(data?.barbers) ? data.barbers : [];
+    return { barbers: barbers.map(normalizeBarber).filter((barber) => barber.id > 0) };
+  } catch {
+    return { barbers: [] };
+  }
 }
 
 export async function getAvailableSlots(
-  _salonId: number,
+  salonId: number,
   date: string,
   serviceIds: number[],
   slotInterval = 15
 ): Promise<{ date: string; slots: BookingSlot[] }> {
-  await wait(550);
-  return { date, slots: createSlotsForDate(serviceIds, slotInterval) };
+  try {
+    const response = await fetch(`${API_BASE}/reservations/available-slots`, {
+      method: 'POST',
+      headers: defaultHeaders(),
+      body: JSON.stringify({
+        salon_id: salonId,
+        service_ids: serviceIds,
+        date,
+        slot_interval: slotInterval,
+      }),
+    });
+    const body = await parseResponse(response);
+    const data = body?.data || body;
+    const slots = Array.isArray(data?.slots) ? data.slots : [];
+    return {
+      date,
+      slots: slots.map(normalizeSlot).filter((slot) => !!slot.start_time),
+    };
+  } catch {
+    return { date, slots: [] };
+  }
 }
 
 export async function createBooking(payload: CreateBookingPayload): Promise<{
-  success: true;
+  success: boolean;
   data: {
     id: number;
     booking_id: string;
@@ -186,21 +181,63 @@ export async function createBooking(payload: CreateBookingPayload): Promise<{
     time: string;
     status: string;
   };
+  message?: string;
 }> {
-  await wait(900);
-  return {
-    success: true,
-    data: {
-      id: Math.floor(Math.random() * 100000),
-      booking_id: `BK-${Date.now().toString().slice(-8)}`,
-      salon_id: payload.salon_id,
-      service_ids: payload.service_ids,
-      barber_assignments: payload.barber_assignments,
-      date: payload.date,
-      time: payload.time,
-      status: 'confirmed',
-    },
-  };
+  try {
+    const cleanAssignments = Object.fromEntries(
+      Object.entries(payload.barber_assignments || {}).flatMap(([serviceId, barberId]) => {
+        const parsedBarberId = Number(barberId);
+        if (Number.isInteger(parsedBarberId) && parsedBarberId > 0) {
+          return [[serviceId, parsedBarberId]];
+        }
+        return [];
+      })
+    );
+
+    const response = await fetch(`${API_BASE}/bookings`, {
+      method: 'POST',
+      headers: defaultHeaders(),
+      body: JSON.stringify({
+        salon_id: payload.salon_id,
+        service_ids: payload.service_ids,
+        date: payload.date,
+        time: payload.time,
+        barber_assignments: cleanAssignments,
+      }),
+    });
+    const body = await parseResponse(response);
+    const data = body?.data || body;
+
+    return {
+      success: true,
+      data: {
+        id: Number(data?.id || 0),
+        booking_id: String(data?.booking_id || data?.id || ''),
+        salon_id: Number(data?.salon_id || payload.salon_id),
+        service_ids: Array.isArray(data?.service_ids) ? data.service_ids : payload.service_ids,
+        barber_assignments: data?.barber_assignments || payload.barber_assignments,
+        date: data?.date || payload.date,
+        time: data?.time || payload.time,
+        status: data?.status || 'confirmed',
+      },
+      message: body?.message,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      data: {
+        id: 0,
+        booking_id: '',
+        salon_id: payload.salon_id,
+        service_ids: payload.service_ids,
+        barber_assignments: payload.barber_assignments,
+        date: payload.date,
+        time: payload.time,
+        status: 'failed',
+      },
+      message: error instanceof Error ? error.message : 'Creation de reservation impossible',
+    };
+  }
 }
 
 export default {

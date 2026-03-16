@@ -66,6 +66,7 @@ export default function BookingScreenPage() {
   const [loadingSlots, setLoadingSlots] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [successId, setSuccessId] = useState<string | null>(null);
+  const [apiError, setApiError] = useState('');
 
   const [services, setServices] = useState<BookingServiceItem[]>([]);
   const [selectedServiceIds, setSelectedServiceIds] = useState<number[]>([]);
@@ -184,6 +185,7 @@ export default function BookingScreenPage() {
       return;
     }
 
+    setApiError('');
     setSubmitting(true);
     const assignments: Record<string, number | null> = {};
     selectedServices.forEach((service) => {
@@ -197,6 +199,12 @@ export default function BookingScreenPage() {
       time: selectedSlot.start_time,
       barber_assignments: assignments,
     });
+
+    if (!response.success || !response.data.booking_id) {
+      setApiError(response.message || 'Impossible de confirmer la reservation pour le moment.');
+      setSubmitting(false);
+      return;
+    }
 
     setSuccessId(response.data.booking_id);
     setSubmitting(false);
@@ -420,6 +428,12 @@ export default function BookingScreenPage() {
         >
           {submitting ? 'Confirmation en cours...' : 'Confirmer la reservation'}
         </button>
+
+        {apiError && (
+          <div className="rounded-xl border border-red-400/30 bg-red-500/10 px-3 py-2 text-sm text-red-200">
+            {apiError}
+          </div>
+        )}
       </div>
     );
   }
