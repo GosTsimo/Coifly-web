@@ -45,19 +45,6 @@ const mockUser: UserProfile = {
   notifications_count: 0,
 };
 
-const mockFavorites: FavoriteSalon[] = [
-  {
-    id: 0,
-    name: 'Elite Barber',
-    address: 'Centre-ville',
-    rating: 4.9,
-    reviews_count: 120,
-    distance: '1.2 km',
-    is_open: true,
-    image: 'https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=800&auto=format&fit=crop',
-  },
-];
-
 function authHeaders() {
   const token = getStoredToken();
   return {
@@ -198,7 +185,7 @@ export default function HomeClientPage() {
       setProfile(profileData || mockUser);
       setUpcoming(upcomingData || null);
 
-      const finalFavorites = favoritesData && favoritesData.length > 0 ? favoritesData : mockFavorites;
+      const finalFavorites = favoritesData ?? [];
       setFavorites(finalFavorites);
       setFavoriteIds(new Set(finalFavorites.map((salon) => salon.id)));
 
