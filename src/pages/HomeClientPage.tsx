@@ -271,41 +271,44 @@ export default function HomeClientPage() {
           {loading ? (
             <div className="rounded-2xl bg-dark-surface border border-white/10 p-5 text-text-secondary">Chargement...</div>
           ) : upcoming ? (
-            <div className="relative overflow-hidden rounded-3xl p-5 sm:p-6 bg-gradient-to-br from-[#d2ad6d] via-[#c39c56] to-[#996f2f] text-black shadow-xl">
-              <div className="absolute -right-10 -top-10 w-40 h-40 rounded-full bg-black/10 blur-2xl" />
-              <div className="absolute -left-12 -bottom-12 w-44 h-44 rounded-full bg-white/10 blur-2xl" />
+            <div className="relative overflow-hidden rounded-3xl p-5 sm:p-6 bg-dark-surface border border-gold/20 shadow-[0_20px_60px_rgba(0,0,0,0.45)]">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_10%_20%,rgba(195,156,86,0.22),transparent_45%),radial-gradient(circle_at_90%_0%,rgba(245,158,11,0.18),transparent_35%)]" />
+              <div className="absolute -right-12 -top-12 w-52 h-52 rounded-full bg-gold/15 blur-3xl" />
+              <div className="absolute -left-10 -bottom-16 w-56 h-56 rounded-full bg-amber-500/10 blur-3xl" />
 
               <div className="relative">
                 <div className="flex items-center justify-between gap-2 mb-4">
-                  <span className="inline-flex items-center gap-2 bg-black/15 px-3 py-1 rounded-full text-xs font-semibold">
+                  <span className="inline-flex items-center gap-2 bg-gradient-gold text-black px-3 py-1 rounded-full text-xs font-bold border border-black/10">
                     <Calendar className="w-3.5 h-3.5" />
                     Confirme
                   </span>
-                  <span className="text-xs bg-black/15 px-2.5 py-1 rounded-full font-medium">Prochain passage</span>
+                  <span className="text-xs bg-white/5 border border-white/15 text-text-secondary px-2.5 py-1 rounded-full font-medium">Prochain passage</span>
                 </div>
 
-                <h3 className="text-2xl sm:text-3xl font-extrabold leading-tight tracking-tight">{upcoming.salon_name}</h3>
-                <p className="text-sm mt-1.5 text-black/75">{formatBookingDate(upcoming.date)}</p>
+                <h3 className="text-2xl sm:text-3xl font-extrabold leading-tight tracking-tight text-text-primary">{upcoming.salon_name}</h3>
+                <p className="text-sm mt-1.5 text-gold/90">{formatBookingDate(upcoming.date)}</p>
+
+                <div className="h-px my-4 bg-gradient-to-r from-gold/50 via-gold/10 to-transparent" />
 
                 <div className="grid sm:grid-cols-3 gap-2.5 mt-5">
-                  <div className="rounded-xl bg-black/12 px-3 py-2.5">
-                    <p className="text-[11px] uppercase tracking-wide text-black/70 mb-1">Service</p>
-                    <p className="text-sm font-semibold inline-flex items-center gap-1.5"><Scissors className="w-3.5 h-3.5" />{upcoming.service_name}</p>
+                  <div className="rounded-xl bg-black/25 border border-gold/20 px-3 py-2.5">
+                    <p className="text-[11px] uppercase tracking-wide text-gold/80 mb-1">Service</p>
+                    <p className="text-sm font-semibold text-text-primary inline-flex items-center gap-1.5"><Scissors className="w-3.5 h-3.5 text-gold" />{upcoming.service_name}</p>
                   </div>
-                  <div className="rounded-xl bg-black/12 px-3 py-2.5">
-                    <p className="text-[11px] uppercase tracking-wide text-black/70 mb-1">Horaire</p>
-                    <p className="text-sm font-semibold inline-flex items-center gap-1.5"><Clock3 className="w-3.5 h-3.5" />{upcoming.time}</p>
+                  <div className="rounded-xl bg-black/25 border border-gold/20 px-3 py-2.5">
+                    <p className="text-[11px] uppercase tracking-wide text-gold/80 mb-1">Horaire</p>
+                    <p className="text-sm font-semibold text-text-primary inline-flex items-center gap-1.5"><Clock3 className="w-3.5 h-3.5 text-gold" />{upcoming.time}</p>
                   </div>
-                  <div className="rounded-xl bg-black/12 px-3 py-2.5">
-                    <p className="text-[11px] uppercase tracking-wide text-black/70 mb-1">Coiffeur</p>
-                    <p className="text-sm font-semibold inline-flex items-center gap-1.5"><User className="w-3.5 h-3.5" />{upcoming.barber_name}</p>
+                  <div className="rounded-xl bg-black/25 border border-gold/20 px-3 py-2.5">
+                    <p className="text-[11px] uppercase tracking-wide text-gold/80 mb-1">Coiffeur</p>
+                    <p className="text-sm font-semibold text-text-primary inline-flex items-center gap-1.5"><User className="w-3.5 h-3.5 text-gold" />{upcoming.barber_name}</p>
                   </div>
                 </div>
 
                 <div className="mt-5">
                   <Link
                     to="/salon/testtt"
-                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-black text-white font-semibold hover:bg-black/85 transition-colors"
+                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-gold text-black font-bold hover:shadow-gold transition-all duration-300 hover:-translate-y-0.5"
                   >
                     Voir le detail
                     <ChevronRight className="w-4 h-4" />
@@ -314,12 +317,39 @@ export default function HomeClientPage() {
               </div>
             </div>
           ) : (
-            <div className="rounded-2xl bg-dark-surface border border-white/10 p-5">
-              <p className="text-text-secondary mb-4">Aucun rendez-vous a venir.</p>
-              <Link to="/salon/testtt" className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gold text-black font-semibold">
-                <Calendar className="w-4 h-4" />
-                Reserver maintenant
-              </Link>
+            <div className="relative overflow-hidden rounded-3xl border border-gold/20 bg-dark-surface p-6 sm:p-7 shadow-[0_20px_60px_rgba(0,0,0,0.45)]">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_0%,rgba(195,156,86,0.2),transparent_40%),radial-gradient(circle_at_85%_20%,rgba(245,158,11,0.12),transparent_35%)]" />
+              <div className="absolute -right-14 -top-14 w-52 h-52 rounded-full bg-gold/12 blur-3xl" />
+
+              <div className="relative text-center sm:text-left sm:flex sm:items-center sm:justify-between gap-6">
+                <div className="sm:max-w-[65%]">
+                  <div className="inline-flex items-center gap-3 px-3 py-2 rounded-2xl bg-black/25 border border-gold/20 mb-4">
+                    <img src="/images/logo.png" alt="Coifly" className="h-9 w-9 object-contain" />
+                    <div className="text-left">
+                      <p className="text-gold text-xs tracking-[0.2em] uppercase">Coifly</p>
+                      <p className="text-text-primary font-semibold text-sm">Aucun RDV planifie</p>
+                    </div>
+                  </div>
+
+                  <h3 className="text-2xl sm:text-3xl font-extrabold leading-tight text-text-primary">
+                    Votre style parfait commence
+                    <span className="block text-gold">par un prochain rendez-vous.</span>
+                  </h3>
+                  <p className="text-text-secondary mt-3 max-w-xl">
+                    Trouvez votre salon favori, choisissez le meilleur coiffeur et reservez en quelques secondes.
+                  </p>
+                </div>
+
+                <div className="mt-6 sm:mt-0">
+                  <Link
+                    to="/salon/testtt"
+                    className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-gradient-gold text-black font-bold hover:shadow-gold transition-all duration-300 hover:-translate-y-0.5"
+                  >
+                    <Calendar className="w-4 h-4" />
+                    Reserver maintenant
+                  </Link>
+                </div>
+              </div>
             </div>
           )}
         </section>
