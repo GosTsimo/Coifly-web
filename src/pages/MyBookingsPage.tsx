@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import { getStoredToken, isAuthenticated } from '../services/authService';
 
-type BookingStatus = 'pending' | 'confirmed' | 'done' | 'cancelled';
+type BookingStatus = 'pending' | 'confirmed' | 'done' | 'cancelled' | 'no_show';
 type ActiveTab = 'upcoming' | 'pending' | 'history';
 
 type ApiBooking = {
@@ -66,6 +66,7 @@ function normalizeStatus(status: string | undefined): BookingStatus {
   if (status === 'confirmed') return 'confirmed';
   if (status === 'done') return 'done';
   if (status === 'cancelled') return 'cancelled';
+  if (status === 'no_show') return 'no_show';
   return 'pending';
 }
 
@@ -159,6 +160,9 @@ function statusBadge(status: BookingStatus) {
   if (status === 'done') {
     return 'bg-blue-500/20 border border-blue-400/30 text-blue-300';
   }
+  if (status === 'no_show') {
+    return 'bg-red-500/20 border border-red-400/30 text-red-300';
+  }
   return 'bg-zinc-500/20 border border-zinc-400/30 text-zinc-300';
 }
 
@@ -166,6 +170,7 @@ function statusLabel(status: BookingStatus) {
   if (status === 'confirmed') return 'A venir';
   if (status === 'pending') return 'En attente';
   if (status === 'done') return 'Termine';
+  if (status === 'no_show') return 'Non confirme';
   return 'Annule';
 }
 
@@ -215,7 +220,7 @@ export default function MyBookingsPage() {
 
   const upcomingItems = useMemo(() => bookings.filter((b) => b.status === 'confirmed'), [bookings]);
   const pendingItems = useMemo(() => bookings.filter((b) => b.status === 'pending'), [bookings]);
-  const historyItems = useMemo(() => bookings.filter((b) => b.status === 'done' || b.status === 'cancelled'), [bookings]);
+  const historyItems = useMemo(() => bookings.filter((b) => b.status === 'done' || b.status === 'cancelled' || b.status === 'no_show'), [bookings]);
 
   const filteredItems = useMemo(() => {
     if (activeTab === 'upcoming') return upcomingItems;
