@@ -112,7 +112,7 @@ export async function getSalonServices(salonId: number): Promise<{ services: Boo
     const body = await parseResponse(response);
     const data = body?.data || body;
     const services = Array.isArray(data?.services) ? data.services : Array.isArray(data) ? data : [];
-    return { services: services.map(normalizeService).filter((service) => service.id > 0) };
+    return { services: services.map(normalizeService).filter((service: BookingServiceItem) => service.id > 0) };
   } catch {
     return { services: [] };
   }
@@ -134,7 +134,7 @@ export async function getBarbersByServices(
     const body = await parseResponse(response);
     const data = body?.data || body;
     const barbers = Array.isArray(data?.barbers) ? data.barbers : [];
-    return { barbers: barbers.map(normalizeBarber).filter((barber) => barber.id > 0) };
+    return { barbers: barbers.map(normalizeBarber).filter((barber: BookingBarber) => barber.id > 0) };
   } catch {
     return { barbers: [] };
   }
@@ -162,7 +162,7 @@ export async function getAvailableSlots(
     const slots = Array.isArray(data?.slots) ? data.slots : [];
     return {
       date,
-      slots: slots.map(normalizeSlot).filter((slot) => !!slot.start_time),
+      slots: slots.map(normalizeSlot).filter((slot: BookingSlot) => !!slot.start_time),
     };
   } catch {
     return { date, slots: [] };
