@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { ArrowLeft, Calendar, Check, Clock3, Scissors, Sparkles, Star, UserRound } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { AlertCircle, ArrowLeft, Calendar, Check, CheckCircle2, Clock3, Loader2, Scissors, Sparkles, Star, Timer, UserRound } from 'lucide-react';
 import clientBookingService, {
   type BookingBarber,
   type BookingServiceItem,
@@ -212,11 +212,17 @@ export default function BookingScreenPage() {
   function stepContent() {
     if (step === 0) {
       if (loadingServices) {
-        return <p className="text-text-secondary">Chargement des services...</p>;
+        return (
+          <div className="space-y-3">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="h-24 rounded-2xl bg-white/5 animate-pulse" />
+            ))}
+          </div>
+        );
       }
 
       return (
-        <div className="grid gap-4">
+        <div className="space-y-3">
           {services.map((service) => {
             const selected = selectedServiceIds.includes(service.id);
             return (
@@ -224,17 +230,38 @@ export default function BookingScreenPage() {
                 type="button"
                 key={service.id}
                 onClick={() => toggleService(service.id)}
-                className={`w-full text-left rounded-2xl border p-4 transition-all ${selected ? 'border-gold bg-gold/10 shadow-lg shadow-gold/10' : 'border-white/10 bg-dark-surface hover:border-gold/30'}`}
+                className={`w-full text-left rounded-2xl border p-4 transition-all duration-200 group ${
+                  selected
+                    ? 'border-gold bg-gradient-to-r from-gold/15 to-amber-500/10 shadow-lg shadow-gold/15'
+                    : 'border-white/10 bg-dark-surface hover:border-gold/40 hover:bg-white/5'
+                }`}
               >
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="text-text-primary font-semibold">{service.name}</p>
-                    <p className="text-text-muted text-sm mt-1">{service.description}</p>
-                    <p className="text-text-secondary text-xs mt-2 uppercase tracking-wide">{service.category}</p>
+                <div className="flex items-center gap-4">
+                  <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
+                    selected ? 'bg-gold text-dark' : 'bg-white/5 text-text-secondary group-hover:bg-gold/10 group-hover:text-gold'
+                  }`}>
+                    <Scissors className="w-5 h-5" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className={`font-semibold truncate ${selected ? 'text-text-primary' : 'text-text-primary'}`}>{service.name}</p>
+                    {service.description && (
+                      <p className="text-text-muted text-xs mt-0.5 line-clamp-1">{service.description}</p>
+                    )}
+                    <span className="inline-block mt-1.5 text-[10px] uppercase tracking-widest px-2 py-0.5 rounded-full border border-white/10 text-text-muted">
+                      {service.category}
+                    </span>
                   </div>
                   <div className="text-right shrink-0">
-                    <p className="text-gold font-bold">{formatPrice(service.price)}</p>
-                    <p className="text-text-secondary text-sm">{formatDuration(service.duration)}</p>
+                    <p className={`font-bold text-base ${selected ? 'text-gold' : 'text-text-primary'}`}>{formatPrice(service.price)}</p>
+                    <p className="text-text-muted text-xs mt-0.5 inline-flex items-center gap-1">
+                      <Timer className="w-3 h-3" />
+                      {formatDuration(service.duration)}
+                    </p>
+                  </div>
+                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${
+                    selected ? 'bg-gold border-gold' : 'border-white/20'
+                  }`}>
+                    {selected && <Check className="w-3 h-3 text-dark" strokeWidth={3} />}
                   </div>
                 </div>
               </button>
@@ -242,12 +269,19 @@ export default function BookingScreenPage() {
           })}
 
           {selectedServices.length > 0 && (
-            <div className="rounded-2xl border border-gold/30 bg-gradient-to-r from-gold/15 to-amber-500/10 p-4 flex items-center justify-between">
-              <div>
-                <p className="text-text-primary font-semibold">{selectedServices.length} service(s)</p>
-                <p className="text-text-secondary text-sm">{formatDuration(totalDuration)}</p>
+            <div className="rounded-2xl border border-gold/30 bg-gradient-to-r from-gold/15 to-amber-500/10 p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-gold/20 flex items-center justify-center">
+                    <Check className="w-4 h-4 text-gold" />
+                  </div>
+                  <div>
+                    <p className="text-text-primary font-semibold text-sm">{selectedServices.length} service{selectedServices.length > 1 ? 's' : ''} selectionne{selectedServices.length > 1 ? 's' : ''}</p>
+                    <p className="text-text-muted text-xs inline-flex items-center gap-1"><Timer className="w-3 h-3" />{formatDuration(totalDuration)}</p>
+                  </div>
+                </div>
+                <p className="text-gold font-bold text-lg">{formatPrice(totalPrice)}</p>
               </div>
-              <p className="text-gold font-bold text-lg">{formatPrice(totalPrice)}</p>
             </div>
           )}
         </div>
@@ -256,64 +290,85 @@ export default function BookingScreenPage() {
 
     if (step === 1) {
       if (loadingBarbers) {
-        return <p className="text-text-secondary">Chargement des coiffeurs...</p>;
+        return (
+          <div className="space-y-4">
+            {[1, 2].map((i) => (
+              <div key={i} className="h-32 rounded-2xl bg-white/5 animate-pulse" />
+            ))}
+          </div>
+        );
       }
 
       return (
-        <div className="space-y-6">
+        <div className="space-y-5">
           {selectedServices.map((service) => {
             const options = getBarbersForService(service.id);
             const selected = selectedBarbers[service.id];
 
             return (
-              <section key={service.id} className="rounded-2xl border border-white/10 bg-dark-surface p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <div>
-                    <p className="text-text-primary font-semibold">{service.name}</p>
-                    <p className="text-text-muted text-sm">1 coiffeur requis</p>
+              <section key={service.id} className="rounded-2xl border border-white/10 bg-dark-surface overflow-hidden">
+                <div className="px-4 py-3 border-b border-white/10 bg-white/3 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Scissors className="w-4 h-4 text-gold" />
+                    <p className="text-text-primary font-semibold text-sm">{service.name}</p>
                   </div>
                   <button
                     type="button"
                     onClick={() => autoAssignBarber(service.id)}
-                    className="inline-flex items-center gap-2 text-sm px-3 py-1.5 rounded-lg border border-gold/30 text-gold hover:bg-gold/10"
+                    className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg border border-gold/30 text-gold hover:bg-gold/10 transition-colors"
                   >
-                    <Sparkles className="w-4 h-4" />
+                    <Sparkles className="w-3.5 h-3.5" />
                     Automatique
                   </button>
                 </div>
 
-                {options.length === 0 ? (
-                  <p className="text-text-muted text-sm">Aucun coiffeur disponible pour ce service.</p>
-                ) : (
-                  <div className="grid gap-3">
-                    {options.map((barber) => {
-                      const isSelected = selected?.id === barber.id;
-                      return (
-                        <button
-                          type="button"
-                          key={barber.id}
-                          onClick={() => setSelectedBarbers((prev) => ({ ...prev, [service.id]: barber }))}
-                          className={`w-full text-left rounded-xl border p-3 transition-all ${isSelected ? 'border-gold bg-gold/10' : 'border-white/10 hover:border-gold/30'}`}
-                        >
-                          <div className="flex items-center gap-3">
-                            <img src={barber.photo_url} alt={barber.name} className="w-12 h-12 rounded-full object-cover" />
-                            <div className="flex-1">
-                              <p className="text-text-primary font-medium">{barber.name}</p>
-                              <p className="text-text-muted text-sm">{barber.speciality}</p>
+                <div className="p-4">
+                  {options.length === 0 ? (
+                    <p className="text-text-muted text-sm text-center py-3">Aucun coiffeur disponible pour ce service.</p>
+                  ) : (
+                    <div className="space-y-2">
+                      {options.map((barber) => {
+                        const isSelected = selected?.id === barber.id;
+                        return (
+                          <button
+                            type="button"
+                            key={barber.id}
+                            onClick={() => setSelectedBarbers((prev) => ({ ...prev, [service.id]: barber }))}
+                            className={`w-full text-left rounded-xl border p-3 transition-all duration-200 ${
+                              isSelected
+                                ? 'border-gold bg-gradient-to-r from-gold/15 to-amber-500/10'
+                                : 'border-white/10 hover:border-gold/30 hover:bg-white/5'
+                            }`}
+                          >
+                            <div className="flex items-center gap-3">
+                              {barber.photo_url ? (
+                                <img src={barber.photo_url} alt={barber.name} className={`w-12 h-12 rounded-full object-cover border-2 transition-colors ${isSelected ? 'border-gold' : 'border-white/10'}`} />
+                              ) : (
+                                <div className={`w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold border-2 transition-colors ${isSelected ? 'bg-gold/20 border-gold text-gold' : 'bg-white/10 border-white/10 text-text-secondary'}`}>
+                                  {barber.name.charAt(0)}
+                                </div>
+                              )}
+                              <div className="flex-1 min-w-0">
+                                <p className="text-text-primary font-semibold text-sm">{barber.name}</p>
+                                <p className="text-text-muted text-xs mt-0.5">{barber.speciality}</p>
+                                <div className="flex items-center gap-1 mt-1">
+                                  <Star className="w-3 h-3 fill-gold text-gold" />
+                                  <span className="text-gold text-xs font-medium">{barber.rating_average.toFixed(1)}</span>
+                                  <span className="text-text-muted text-xs">({barber.reviews_count})</span>
+                                </div>
+                              </div>
+                              <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${
+                                isSelected ? 'bg-gold border-gold' : 'border-white/20'
+                              }`}>
+                                {isSelected && <Check className="w-3 h-3 text-dark" strokeWidth={3} />}
+                              </div>
                             </div>
-                            <div className="text-right">
-                              <p className="text-gold text-sm inline-flex items-center gap-1">
-                                <Star className="w-3.5 h-3.5 fill-gold text-gold" />
-                                {barber.rating_average.toFixed(1)}
-                              </p>
-                              <p className="text-text-muted text-xs">{barber.reviews_count} avis</p>
-                            </div>
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
               </section>
             );
           })}
@@ -324,64 +379,105 @@ export default function BookingScreenPage() {
     if (step === 2) {
       return (
         <div className="space-y-5">
-          <div className="flex gap-2 overflow-x-auto pb-2">
-            {nextDays.map((day) => {
-              const selected = day.ymd === selectedDate.ymd;
-              return (
-                <button
-                  type="button"
-                  key={day.ymd}
-                  onClick={() => setSelectedDate(day)}
-                  className={`shrink-0 rounded-xl px-4 py-3 border text-left transition-all ${selected ? 'border-gold bg-gold/10' : 'border-white/10 bg-dark-surface hover:border-gold/25'}`}
-                >
-                  <p className="text-sm text-text-primary font-medium">{day.weekDay}</p>
-                  <p className="text-xs text-text-secondary mt-1">{day.label}</p>
-                </button>
-              );
-            })}
-          </div>
-
-          {loadingSlots ? (
-            <p className="text-text-secondary">Chargement des disponibilites...</p>
-          ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              {slots.map((slot) => {
-                const selected = selectedSlot?.start_time === slot.start_time;
+          {/* Date strip */}
+          <div>
+            <p className="text-text-muted text-xs uppercase tracking-widest mb-3">Choisissez une date</p>
+            <div className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-none">
+              {nextDays.map((day) => {
+                const selected = day.ymd === selectedDate.ymd;
+                const isToday = day.weekDay === "Aujourd'hui";
                 return (
                   <button
                     type="button"
-                    key={`${slot.start_time}-${slot.end_time}`}
-                    disabled={!slot.available}
-                    onClick={() => setSelectedSlot(slot)}
-                    className={`rounded-xl border p-3 text-left transition-all ${!slot.available ? 'border-white/5 bg-dark-surface/40 text-text-muted cursor-not-allowed' : selected ? 'border-gold bg-gold/10' : 'border-white/10 bg-dark-surface hover:border-gold/25'}`}
+                    key={day.ymd}
+                    onClick={() => setSelectedDate(day)}
+                    className={`shrink-0 rounded-2xl px-4 py-3.5 border text-center transition-all duration-200 min-w-[72px] ${
+                      selected
+                        ? 'border-gold bg-gradient-to-b from-gold/20 to-gold/10 shadow-lg shadow-gold/20'
+                        : 'border-white/10 bg-dark-surface hover:border-gold/30 hover:bg-white/5'
+                    }`}
                   >
-                    <p className="text-sm font-semibold">{slot.start_time}</p>
-                    <p className="text-xs text-text-secondary mt-1">Fin {slot.end_time}</p>
-                    <p className="text-xs mt-2">{slot.available ? 'Disponible' : 'Complet'}</p>
+                    <p className={`text-xs font-semibold uppercase tracking-wide ${
+                      selected ? 'text-gold' : isToday ? 'text-emerald-400' : 'text-text-muted'
+                    }`}>{day.weekDay}</p>
+                    <p className={`text-sm font-bold mt-1 ${selected ? 'text-text-primary' : 'text-text-secondary'}`}>{day.label}</p>
+                    {selected && <div className="w-1.5 h-1.5 rounded-full bg-gold mx-auto mt-1.5" />}
                   </button>
                 );
               })}
             </div>
-          )}
+          </div>
+
+          {/* Time slots */}
+          <div>
+            <p className="text-text-muted text-xs uppercase tracking-widest mb-3">Creneaux disponibles</p>
+            {loadingSlots ? (
+              <div className="grid grid-cols-3 gap-2">
+                {[1,2,3,4,5,6].map((i) => (
+                  <div key={i} className="h-16 rounded-xl bg-white/5 animate-pulse" />
+                ))}
+              </div>
+            ) : slots.length === 0 ? (
+              <div className="rounded-2xl border border-white/10 bg-dark-surface p-6 text-center">
+                <Clock3 className="w-8 h-8 text-text-muted mx-auto mb-2" />
+                <p className="text-text-secondary">Aucun creneau disponible ce jour.</p>
+                <p className="text-text-muted text-sm mt-1">Essayez une autre date.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                {slots.map((slot) => {
+                  const selected = selectedSlot?.start_time === slot.start_time;
+                  return (
+                    <button
+                      type="button"
+                      key={`${slot.start_time}-${slot.end_time}`}
+                      disabled={!slot.available}
+                      onClick={() => setSelectedSlot(slot)}
+                      className={`rounded-xl border py-3 px-2 text-center transition-all duration-200 ${
+                        !slot.available
+                          ? 'border-white/5 bg-dark-surface/40 opacity-40 cursor-not-allowed'
+                          : selected
+                            ? 'border-gold bg-gradient-to-b from-gold/20 to-gold/10 shadow-gold/20 shadow-md'
+                            : 'border-white/10 bg-dark-surface hover:border-gold/40 hover:bg-white/5'
+                      }`}
+                    >
+                      <p className={`text-sm font-bold ${selected ? 'text-gold' : 'text-text-primary'}`}>{slot.start_time}</p>
+                      <p className="text-[10px] text-text-muted mt-0.5">{slot.end_time}</p>
+                      {!slot.available && <p className="text-[10px] text-text-muted mt-1">Complet</p>}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </div>
       );
     }
 
     if (successId) {
       return (
-        <div className="rounded-2xl border border-emerald-400/30 bg-emerald-500/10 p-6 text-center">
-          <div className="w-12 h-12 rounded-full bg-emerald-500/20 mx-auto mb-3 flex items-center justify-center">
-            <Check className="w-6 h-6 text-emerald-300" />
+        <div className="text-center py-4">
+          <div className="relative w-20 h-20 mx-auto mb-5">
+            <div className="absolute inset-0 rounded-full bg-emerald-500/20 animate-ping" />
+            <div className="relative w-20 h-20 rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center">
+              <CheckCircle2 className="w-10 h-10 text-emerald-400" />
+            </div>
           </div>
-          <h3 className="text-xl font-bold text-text-primary">Reservation confirmee</h3>
-          <p className="text-text-secondary mt-2">Numero: {successId}</p>
-          <button
-            type="button"
-            onClick={() => navigate(-1)}
-            className="mt-5 px-5 py-2.5 rounded-xl bg-gold text-dark font-semibold hover:bg-gold-light"
-          >
-            Retour au salon
-          </button>
+          <h3 className="text-2xl font-extrabold text-text-primary">Reservation confirmee&nbsp;!</h3>
+          <p className="text-text-muted mt-1 text-sm">Votre rendez-vous a ete enregistre avec succes.</p>
+          <div className="mt-5 rounded-2xl border border-emerald-400/20 bg-emerald-500/10 px-5 py-4 inline-block">
+            <p className="text-text-secondary text-xs uppercase tracking-widest">Numero de reservation</p>
+            <p className="text-emerald-300 font-bold text-lg mt-1">{successId}</p>
+          </div>
+          <div className="mt-6">
+            <button
+              type="button"
+              onClick={() => navigate(-1)}
+              className="px-6 py-3 rounded-xl bg-gradient-to-r from-gold to-amber-500 text-dark font-bold hover:shadow-lg hover:shadow-gold/30 transition-all"
+            >
+              Retour au salon
+            </button>
+          </div>
         </div>
       );
     }
@@ -393,29 +489,50 @@ export default function BookingScreenPage() {
 
     return (
       <div className="space-y-4">
-        <div className="rounded-2xl border border-white/10 bg-dark-surface p-4">
-          <p className="text-text-primary font-semibold mb-3">Recapitulatif</p>
-          <div className="space-y-3 text-sm">
+        {/* Receipt card */}
+        <div className="rounded-2xl border border-white/10 bg-dark-surface overflow-hidden">
+          <div className="px-5 py-3.5 border-b border-white/10 bg-white/3 flex items-center gap-2">
+            <Calendar className="w-4 h-4 text-gold" />
+            <p className="text-text-primary font-semibold text-sm">Recapitulatif</p>
+          </div>
+          <div className="p-4 divide-y divide-white/5">
             {assignmentRows.map(({ service, barber }) => (
-              <div key={service.id} className="flex items-center justify-between gap-3">
-                <div>
-                  <p className="text-text-primary">{service.name}</p>
-                  <p className="text-text-muted">Coiffeur: {barber?.name ?? 'Auto'}</p>
+              <div key={service.id} className="flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-gold/10 border border-gold/20 flex items-center justify-center shrink-0">
+                    <Scissors className="w-3.5 h-3.5 text-gold" />
+                  </div>
+                  <div>
+                    <p className="text-text-primary text-sm font-medium">{service.name}</p>
+                    <p className="text-text-muted text-xs">Coiffeur: {barber?.name ?? 'Aleatoire'}</p>
+                  </div>
                 </div>
-                <p className="text-gold font-semibold">{formatPrice(service.price)}</p>
+                <p className="text-gold font-bold text-sm shrink-0">{formatPrice(service.price)}</p>
               </div>
             ))}
           </div>
-          <div className="mt-4 pt-4 border-t border-white/10 flex items-center justify-between">
-            <span className="text-text-secondary">Total</span>
-            <span className="text-gold font-bold text-lg">{formatPrice(totalPrice)}</span>
+          <div className="px-5 py-4 border-t border-gold/20 bg-gold/5 flex items-center justify-between">
+            <span className="text-text-secondary font-medium">Total</span>
+            <span className="text-gold font-extrabold text-xl">{formatPrice(totalPrice)}</span>
           </div>
-          <div className="mt-2 text-text-secondary text-sm flex items-center gap-3">
-            <span>{selectedDate.ymd}</span>
-            <span>•</span>
-            <span>{selectedSlot?.start_time}</span>
-            <span>•</span>
-            <span>{formatDuration(totalDuration)}</span>
+        </div>
+
+        {/* Date/time/duration row */}
+        <div className="grid grid-cols-3 gap-2">
+          <div className="rounded-xl border border-white/10 bg-dark-surface p-3 text-center">
+            <Calendar className="w-4 h-4 text-gold mx-auto mb-1" />
+            <p className="text-[10px] uppercase tracking-wide text-text-muted">Date</p>
+            <p className="text-text-primary text-xs font-semibold mt-0.5">{selectedDate.label}</p>
+          </div>
+          <div className="rounded-xl border border-white/10 bg-dark-surface p-3 text-center">
+            <Clock3 className="w-4 h-4 text-gold mx-auto mb-1" />
+            <p className="text-[10px] uppercase tracking-wide text-text-muted">Heure</p>
+            <p className="text-text-primary text-xs font-semibold mt-0.5">{selectedSlot?.start_time}</p>
+          </div>
+          <div className="rounded-xl border border-white/10 bg-dark-surface p-3 text-center">
+            <Timer className="w-4 h-4 text-gold mx-auto mb-1" />
+            <p className="text-[10px] uppercase tracking-wide text-text-muted">Duree</p>
+            <p className="text-text-primary text-xs font-semibold mt-0.5">{formatDuration(totalDuration)}</p>
           </div>
         </div>
 
@@ -423,13 +540,18 @@ export default function BookingScreenPage() {
           type="button"
           disabled={submitting}
           onClick={() => void confirmBooking()}
-          className="w-full py-3.5 rounded-xl bg-gold text-dark font-bold hover:bg-gold-light disabled:opacity-70"
+          className="w-full py-4 rounded-2xl bg-gradient-to-r from-gold to-amber-500 text-dark font-extrabold text-base hover:shadow-xl hover:shadow-gold/30 transition-all disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
-          {submitting ? 'Confirmation en cours...' : 'Confirmer la reservation'}
+          {submitting ? (
+            <><Loader2 className="w-4 h-4 animate-spin" />Confirmation en cours...</>
+          ) : (
+            <><CheckCircle2 className="w-4 h-4" />Confirmer la reservation</>
+          )}
         </button>
 
         {apiError && (
-          <div className="rounded-xl border border-red-400/30 bg-red-500/10 px-3 py-2 text-sm text-red-200">
+          <div className="rounded-xl border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-200 flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 shrink-0" />
             {apiError}
           </div>
         )}
@@ -438,9 +560,11 @@ export default function BookingScreenPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_10%_10%,rgba(195,156,86,0.15),transparent_40%),radial-gradient(circle_at_90%_20%,rgba(245,158,11,0.12),transparent_40%),#0B0B0F] text-white pb-14">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-6">
-        <div className="flex items-center justify-between mb-7">
+    <div className="min-h-screen bg-[radial-gradient(circle_at_10%_10%,rgba(195,156,86,0.15),transparent_40%),radial-gradient(circle_at_90%_20%,rgba(245,158,11,0.12),transparent_40%),#0B0B0F] text-white pb-20">
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 pt-6">
+
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6">
           <button
             type="button"
             onClick={() => navigate(-1)}
@@ -449,58 +573,84 @@ export default function BookingScreenPage() {
             <ArrowLeft className="w-4 h-4" />
             Retour
           </button>
-          <p className="text-text-muted text-sm">Salon: {salonName}</p>
+          <div className="text-right">
+            <p className="text-xs text-text-muted">Salon</p>
+            <p className="text-sm font-semibold text-text-primary">{salonName}</p>
+          </div>
         </div>
 
-        <div className="rounded-3xl border border-white/10 bg-dark-surface/80 backdrop-blur-md p-5 sm:p-7 shadow-2xl shadow-black/35">
-          <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-8">
+        {/* Step indicator */}
+        {!successId && (
+          <div className="flex items-center mb-8">
             {STEPS.map((label, index) => {
               const isCurrent = index === step;
               const isDone = index < step;
               return (
-                <div key={label} className="flex items-center gap-2">
-                  <div
-                    className={`w-8 h-8 rounded-full text-xs font-bold flex items-center justify-center border ${isDone ? 'bg-gold border-gold text-dark' : isCurrent ? 'border-gold text-gold bg-gold/10' : 'border-white/20 text-text-muted'}`}
-                  >
-                    {isDone ? <Check className="w-4 h-4" /> : index + 1}
+                <div key={label} className="flex items-center flex-1 last:flex-none">
+                  <div className="flex flex-col items-center gap-1.5">
+                    <div className={`w-9 h-9 rounded-full text-xs font-bold flex items-center justify-center border-2 transition-all duration-300 ${
+                      isDone ? 'bg-gold border-gold text-dark' : isCurrent ? 'border-gold text-gold bg-gold/10 shadow-md shadow-gold/30' : 'border-white/15 text-text-muted bg-white/5'
+                    }`}>
+                      {isDone ? <Check className="w-4 h-4" strokeWidth={3} /> : index + 1}
+                    </div>
+                    <span className={`text-[10px] font-medium hidden sm:block ${
+                      isCurrent ? 'text-gold' : isDone ? 'text-text-secondary' : 'text-text-muted'
+                    }`}>{label}</span>
                   </div>
-                  <span className={`${isCurrent ? 'text-text-primary' : 'text-text-muted'} text-sm`}>{label}</span>
-                  {index < STEPS.length - 1 && <div className="w-4 h-px bg-white/20" />}
+                  {index < STEPS.length - 1 && (
+                    <div className={`flex-1 h-0.5 mx-2 rounded-full transition-all duration-500 ${
+                      isDone ? 'bg-gold' : 'bg-white/10'
+                    }`} />
+                  )}
                 </div>
               );
             })}
           </div>
+        )}
 
-          <motion.div
-            key={step}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.2 }}
-            className="mb-8"
-          >
-            <div className="mb-4 flex items-center gap-3">
-              {step === 0 && <Scissors className="w-5 h-5 text-gold" />}
-              {step === 1 && <UserRound className="w-5 h-5 text-gold" />}
-              {step === 2 && <Clock3 className="w-5 h-5 text-gold" />}
-              {step >= 3 && <Calendar className="w-5 h-5 text-gold" />}
-              <h1 className="text-2xl font-bold text-text-primary">{STEPS[step]}</h1>
+        {/* Card */}
+        <div className="rounded-3xl border border-white/10 bg-dark-surface/80 backdrop-blur-md shadow-2xl shadow-black/40 overflow-hidden">
+          {!successId && (
+            <div className="px-5 sm:px-7 pt-6 pb-4 border-b border-white/8">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gold/10 border border-gold/20 flex items-center justify-center">
+                  {step === 0 && <Scissors className="w-5 h-5 text-gold" />}
+                  {step === 1 && <UserRound className="w-5 h-5 text-gold" />}
+                  {step === 2 && <Clock3 className="w-5 h-5 text-gold" />}
+                  {step === 3 && <Calendar className="w-5 h-5 text-gold" />}
+                </div>
+                <div>
+                  <h1 className="text-xl font-extrabold text-text-primary">{STEPS[step]}</h1>
+                  <p className="text-text-muted text-xs">Etape {step + 1} sur {STEPS.length}</p>
+                </div>
+              </div>
             </div>
-            {stepContent()}
-          </motion.div>
+          )}
+
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={step}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+              className="p-5 sm:p-7"
+            >
+              {stepContent()}
+            </motion.div>
+          </AnimatePresence>
 
           {!successId && (
-            <div className="flex items-center justify-between gap-3 pt-2">
+            <div className="px-5 sm:px-7 pb-6 flex items-center justify-between gap-3 border-t border-white/8 pt-4">
               <button
                 type="button"
                 onClick={() => {
-                  if (step === 0) {
-                    navigate(-1);
-                    return;
-                  }
+                  if (step === 0) { navigate(-1); return; }
                   setStep((prev) => Math.max(0, prev - 1));
                 }}
-                className="px-4 py-2.5 rounded-xl border border-white/20 text-text-secondary hover:text-text-primary hover:border-gold/40"
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-white/15 text-text-secondary hover:text-text-primary hover:border-gold/30 transition-all text-sm"
               >
+                <ArrowLeft className="w-3.5 h-3.5" />
                 Precedent
               </button>
 
@@ -509,7 +659,7 @@ export default function BookingScreenPage() {
                   type="button"
                   onClick={() => setStep((prev) => Math.min(3, prev + 1))}
                   disabled={!canContinue()}
-                  className="px-5 py-2.5 rounded-xl bg-gold text-dark font-semibold hover:bg-gold-light disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="flex-1 max-w-xs py-3 rounded-xl bg-gradient-to-r from-gold to-amber-500 text-dark font-bold hover:shadow-lg hover:shadow-gold/30 disabled:opacity-40 disabled:cursor-not-allowed transition-all text-sm"
                 >
                   Continuer
                 </button>
