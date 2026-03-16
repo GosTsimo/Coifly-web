@@ -95,7 +95,7 @@ export default function Navigation() {
                 Télécharger l'app
               </a>
               <a
-                href={authed ? '/salon/testtt' : '/login'}
+                href={authed ? '/client/home' : '/login'}
                 className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-gold text-black font-semibold rounded-xl hover:shadow-gold transition-all duration-300 hover:-translate-y-0.5"
               >
                 {authed ? 'Espace client' : 'Se connecter / Inscrire'}
@@ -148,7 +148,7 @@ export default function Navigation() {
                   Télécharger l'app
                 </motion.a>
                 <motion.a
-                  href={authed ? '/salon/testtt' : '/login'}
+                  href={authed ? '/client/home' : '/login'}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.55 }}

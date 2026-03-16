@@ -13,6 +13,7 @@ import Footer from './components/Footer';
 import SalonDetailPage from './pages/SalonDetailPage';
 import BookingScreenPage from './pages/BookingScreenPage';
 import LoginPage from './pages/LoginPage';
+import HomeClientPage from './pages/HomeClientPage';
 
 function HomePage() {
   useEffect(() => {
@@ -58,6 +59,7 @@ function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/client/home" element={<HomeClientPage />} />
         <Route path="/salon/:slug" element={<SalonDetailPage />} />
         <Route path="/salon/:slug/booking" element={<BookingScreenPage />} />
       </Routes>
