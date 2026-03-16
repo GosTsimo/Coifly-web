@@ -79,12 +79,19 @@ interface ApiReview {
   helpful_count: number;
 }
 
+interface ApiGalleryPhoto {
+  id: number;
+  url: string;
+  is_cover: boolean;
+  sort_order: number;
+}
+
 interface ApiData {
   salon: ApiSalon;
   services: ApiService[];
   barbers: ApiBarber[];
   reviews: ApiReview[];
-  gallery: string[];
+  gallery: ApiGalleryPhoto[];
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -428,10 +435,12 @@ export default function SalonDetailPage() {
               Galerie
             </SectionTitle>
             <div className="grid grid-cols-3 gap-2">
-              {gallery.map((img, i) => (
-                <div key={i} className="aspect-square rounded-xl overflow-hidden">
-                  <img src={img} alt={`Galerie ${i + 1}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
-                </div>
+              {[...gallery]
+                .sort((a, b) => a.sort_order - b.sort_order)
+                .map((photo, i) => (
+                  <div key={photo.id} className="aspect-square rounded-xl overflow-hidden">
+                    <img src={photo.url} alt={`Galerie ${i + 1}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
+                  </div>
               ))}
             </div>
           </motion.div>
