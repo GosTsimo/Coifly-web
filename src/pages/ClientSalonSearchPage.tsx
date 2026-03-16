@@ -57,12 +57,17 @@ function SkeletonCard() {
 function SalonListCard({
   salon,
   onFavorite,
+  onPress,
 }: {
   salon: SearchSalonItem;
   onFavorite: (salonId: number, nextFavorite: boolean) => void;
+  onPress: (salon: SearchSalonItem) => void;
 }) {
   return (
-    <article className="group rounded-3xl overflow-hidden bg-dark-surface border border-white/10 hover:border-gold/30 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_50px_rgba(0,0,0,0.35)]">
+    <article
+      onClick={() => onPress(salon)}
+      className="group cursor-pointer rounded-3xl overflow-hidden bg-dark-surface border border-white/10 hover:border-gold/30 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_50px_rgba(0,0,0,0.35)]"
+    >
       <div className="relative h-48 overflow-hidden">
         <img src={salon.image} alt={salon.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
@@ -72,7 +77,10 @@ function SalonListCard({
           </span>
           <button
             type="button"
-            onClick={() => onFavorite(salon.id, !salon.is_favorite)}
+            onClick={(event) => {
+              event.stopPropagation();
+              onFavorite(salon.id, !salon.is_favorite);
+            }}
             className="w-10 h-10 rounded-full bg-black/40 backdrop-blur-sm border border-white/10 flex items-center justify-center"
           >
             <Heart className={`w-4 h-4 ${salon.is_favorite ? 'fill-red-500 text-red-500' : 'text-white'}`} />
@@ -399,7 +407,7 @@ export default function ClientSalonSearchPage() {
           salons.length > 0 ? (
             <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-5">
               {salons.map((salon) => (
-                <SalonListCard key={salon.id} salon={salon} onFavorite={handleFavorite} />
+                <SalonListCard key={salon.id} salon={salon} onFavorite={handleFavorite} onPress={handleSalonPress} />
               ))}
             </div>
           ) : (
