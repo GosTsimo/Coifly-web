@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowLeft,
   Star,
@@ -10,12 +10,14 @@ import {
   Navigation,
   Heart,
   Share2,
+  ChevronLeft,
   ChevronRight,
   Scissors,
   Calendar,
   Download as DownloadIcon,
   ExternalLink,
   Loader2,
+  X,
 } from 'lucide-react';
 import { isAuthenticated } from '../services/authService';
 import { toggleSalonFavorite } from '../services/salonsService';
@@ -150,9 +152,31 @@ export default function SalonDetailPage() {
   const [activeImage, setActiveImage] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
   const [isFavoriteLoading, setIsFavoriteLoading] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [data, setData] = useState<ApiData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const sortedGallery = data ? [...data.gallery].sort((a, b) => a.sort_order - b.sort_order) : [];
+
+  const lightboxNext = useCallback(() => {
+    setLightboxIndex((i) => (i !== null ? (i + 1) % sortedGallery.length : null));
+  }, [sortedGallery.length]);
+
+  const lightboxPrev = useCallback(() => {
+    setLightboxIndex((i) => (i !== null ? (i - 1 + sortedGallery.length) % sortedGallery.length : null));
+  }, [sortedGallery.length]);
+
+  useEffect(() => {
+    if (lightboxIndex === null) return;
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') setLightboxIndex(null);
+      if (e.key === 'ArrowRight') lightboxNext();
+      if (e.key === 'ArrowLeft') lightboxPrev();
+    }
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [lightboxIndex, lightboxNext, lightboxPrev]);
 
   function handleGoBack() {
     if (isAuthenticated()) {
@@ -434,13 +458,21 @@ export default function SalonDetailPage() {
               <span className="text-gold">🖼️</span>
               Galerie
             </SectionTitle>
-            <div className="grid grid-cols-3 gap-2">
-              {[...gallery]
-                .sort((a, b) => a.sort_order - b.sort_order)
-                .map((photo, i) => (
-                  <div key={photo.id} className="aspect-square rounded-xl overflow-hidden">
-                    <img src={photo.url} alt={`Galerie ${i + 1}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
-                  </div>
+            <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+              {sortedGallery.map((photo, i) => (
+                <button
+                  key={photo.id}
+                  type="button"
+                  onClick={() => setLightboxIndex(i)}
+                  className="aspect-square rounded-xl overflow-hidden group relative focus:outline-none focus:ring-2 focus:ring-gold"
+                >
+                  <img
+                    src={photo.url}
+                    alt={`Galerie ${i + 1}`}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300 rounded-xl" />
+                </button>
               ))}
             </div>
           </motion.div>
@@ -623,6 +655,95 @@ export default function SalonDetailPage() {
           </div>
         </motion.div>
       </div>
+
+      {/* ── Lightbox ── */}
+      <AnimatePresence>
+        {lightboxIndex !== null && sortedGallery.length > 0 && (() => {
+          const photo = sortedGallery[lightboxIndex];
+          let touchStartX = 0;
+          return (
+            <motion.div
+              key="lightbox"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-sm"
+              onClick={() => setLightboxIndex(null)}
+              onTouchStart={(e) => { touchStartX = e.touches[0].clientX; }}
+              onTouchEnd={(e) => {
+                const diff = touchStartX - e.changedTouches[0].clientX;
+                if (Math.abs(diff) > 50) diff > 0 ? lightboxNext() : lightboxPrev();
+              }}
+            >
+              {/* Close */}
+              <button
+                type="button"
+                onClick={() => setLightboxIndex(null)}
+                className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
+              >
+                <X className="w-5 h-5 text-white" />
+              </button>
+
+              {/* Counter */}
+              <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 px-3 py-1 rounded-full bg-black/50 text-white text-sm font-medium">
+                {lightboxIndex + 1} / {sortedGallery.length}
+              </div>
+
+              {/* Prev */}
+              {sortedGallery.length > 1 && (
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); lightboxPrev(); }}
+                  className="absolute left-3 sm:left-6 z-10 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
+                >
+                  <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                </button>
+              )}
+
+              {/* Image */}
+              <motion.img
+                key={photo.id}
+                src={photo.url}
+                alt={`Galerie ${lightboxIndex + 1}`}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.2 }}
+                className="max-w-[90vw] max-h-[85vh] sm:max-w-[80vw] sm:max-h-[88vh] object-contain rounded-xl shadow-2xl"
+                onClick={(e) => e.stopPropagation()}
+              />
+
+              {/* Next */}
+              {sortedGallery.length > 1 && (
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); lightboxNext(); }}
+                  className="absolute right-3 sm:right-6 z-10 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
+                >
+                  <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                </button>
+              )}
+
+              {/* Thumbnails strip */}
+              {sortedGallery.length > 1 && (
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 px-3 py-2 rounded-2xl bg-black/50 backdrop-blur-sm overflow-x-auto max-w-[90vw]">
+                  {sortedGallery.map((p, i) => (
+                    <button
+                      key={p.id}
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); setLightboxIndex(i); }}
+                      className={`flex-shrink-0 w-10 h-10 rounded-lg overflow-hidden border-2 transition-all ${i === lightboxIndex ? 'border-gold scale-110' : 'border-transparent opacity-60 hover:opacity-90'}`}
+                    >
+                      <img src={p.url} alt="" className="w-full h-full object-cover" />
+                    </button>
+                  ))}
+                </div>
+              )}
+            </motion.div>
+          );
+        })()}
+      </AnimatePresence>
     </div>
   );
 }
