@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Calendar, Check, Clock3, Scissors, Sparkles, Star, UserRound } from 'lucide-react';
 import clientBookingService, {
@@ -53,7 +53,6 @@ function formatDuration(minutes: number) {
 }
 
 export default function BookingScreenPage() {
-  const { slug } = useParams<{ slug: string }>();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -378,7 +377,7 @@ export default function BookingScreenPage() {
           <p className="text-text-secondary mt-2">Numero: {successId}</p>
           <button
             type="button"
-            onClick={() => navigate(`/salon/${slug}`)}
+            onClick={() => navigate(-1)}
             className="mt-5 px-5 py-2.5 rounded-xl bg-gold text-dark font-semibold hover:bg-gold-light"
           >
             Retour au salon
@@ -442,13 +441,14 @@ export default function BookingScreenPage() {
     <div className="min-h-screen bg-[radial-gradient(circle_at_10%_10%,rgba(195,156,86,0.15),transparent_40%),radial-gradient(circle_at_90%_20%,rgba(245,158,11,0.12),transparent_40%),#0B0B0F] text-white pb-14">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-6">
         <div className="flex items-center justify-between mb-7">
-          <Link
-            to={`/salon/${slug}`}
+          <button
+            type="button"
+            onClick={() => navigate(-1)}
             className="inline-flex items-center gap-2 text-text-secondary hover:text-gold transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             Retour
-          </Link>
+          </button>
           <p className="text-text-muted text-sm">Salon: {salonName}</p>
         </div>
 
@@ -494,7 +494,7 @@ export default function BookingScreenPage() {
                 type="button"
                 onClick={() => {
                   if (step === 0) {
-                    navigate(`/salon/${slug}`);
+                    navigate(-1);
                     return;
                   }
                   setStep((prev) => Math.max(0, prev - 1));
