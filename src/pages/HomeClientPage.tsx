@@ -339,7 +339,7 @@ export default function HomeClientPage() {
 
                 <div className="mt-6 sm:mt-0">
                   <Link
-                    to="/salon/testtt"
+                    to="/client/salons"
                     className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-gradient-gold text-black font-bold hover:shadow-gold transition-all duration-300 hover:-translate-y-0.5"
                   >
                     <Calendar className="w-4 h-4" />
