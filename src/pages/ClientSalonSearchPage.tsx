@@ -110,13 +110,6 @@ function SalonListCard({
   );
 }
 
-function computePinPosition(value: number, min: number, max: number) {
-  if (max === min) {
-    return 50;
-  }
-  return 12 + ((value - min) / (max - min)) * 76;
-}
-
 export default function ClientSalonSearchPage() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
@@ -258,19 +251,25 @@ export default function ClientSalonSearchPage() {
     [salons]
   );
 
-  const coordinateBounds = useMemo(() => {
-    if (mapSalons.length === 0) {
+  const mapCenter = useMemo(() => {
+    if (userLocation) {
+      return userLocation;
+    }
+    if (mapSalons.length > 0) {
+      return {
+        latitude: mapSalons[0].latitude as number,
+        longitude: mapSalons[0].longitude as number,
+      };
+    }
+    return null;
+  }, [mapSalons, userLocation]);
+
+  const mapEmbedUrl = useMemo(() => {
+    if (!mapCenter) {
       return null;
     }
-    const latitudes = mapSalons.map((salon) => salon.latitude as number);
-    const longitudes = mapSalons.map((salon) => salon.longitude as number);
-    return {
-      minLat: Math.min(...latitudes),
-      maxLat: Math.max(...latitudes),
-      minLng: Math.min(...longitudes),
-      maxLng: Math.max(...longitudes),
-    };
-  }, [mapSalons]);
+    return `https://www.google.com/maps?q=${mapCenter.latitude},${mapCenter.longitude}&z=13&output=embed`;
+  }, [mapCenter]);
 
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_0%_0%,rgba(195,156,86,0.16),transparent_25%),radial-gradient(circle_at_90%_10%,rgba(245,158,11,0.12),transparent_25%),#0B0B0F] text-white">
@@ -384,63 +383,24 @@ export default function ClientSalonSearchPage() {
             </div>
           )
         ) : (
-          <div className="grid lg:grid-cols-[1.2fr_0.8fr] gap-5">
-            <div className="rounded-3xl overflow-hidden border border-white/10 bg-dark-surface/85 min-h-[520px] relative">
-              <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-[size:36px_36px] opacity-30" />
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_30%,rgba(195,156,86,0.18),transparent_35%),radial-gradient(circle_at_80%_10%,rgba(245,158,11,0.12),transparent_30%)]" />
-
-              {coordinateBounds && mapSalons.length > 0 ? (
-                mapSalons.map((salon) => {
-                  const left = computePinPosition(salon.longitude as number, coordinateBounds.minLng, coordinateBounds.maxLng);
-                  const top = computePinPosition(salon.latitude as number, coordinateBounds.minLat, coordinateBounds.maxLat);
-                  return (
-                    <button
-                      key={salon.id}
-                      type="button"
-                      onClick={() => handleFavorite(salon.id, !salon.is_favorite)}
-                      className="absolute -translate-x-1/2 -translate-y-1/2"
-                      style={{ left: `${left}%`, top: `${100 - top}%` }}
-                    >
-                      <div className="w-12 h-12 rounded-full bg-gradient-gold text-black font-bold shadow-lg shadow-gold/20 border-4 border-black/20 flex items-center justify-center">
-                        {salon.name.charAt(0)}
-                      </div>
-                    </button>
-                  );
-                })
-              ) : (
-                <div className="absolute inset-0 flex items-center justify-center text-text-secondary">
-                  <div className="text-center px-6">
-                    <Map className="w-10 h-10 mx-auto text-gold mb-3" />
-                    <p className="font-semibold">Carte indisponible</p>
-                    <p className="text-sm mt-1">Les coordonnées salons sont absentes pour cette recherche.</p>
-                  </div>
+          <div className="rounded-3xl overflow-hidden border border-white/10 bg-dark-surface/85 min-h-[620px] relative">
+            {mapEmbedUrl ? (
+              <iframe
+                title="Carte interactive des salons"
+                src={mapEmbedUrl}
+                className="w-full h-[620px]"
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+              />
+            ) : (
+              <div className="absolute inset-0 flex items-center justify-center text-text-secondary">
+                <div className="text-center px-6">
+                  <Map className="w-10 h-10 mx-auto text-gold mb-3" />
+                  <p className="font-semibold">Carte indisponible</p>
+                  <p className="text-sm mt-1">Les coordonnées salons sont absentes pour cette recherche.</p>
                 </div>
-              )}
-            </div>
-
-            <div className="space-y-3">
-              {salons.slice(0, 5).map((salon) => (
-                <div key={salon.id} className="rounded-2xl border border-white/10 bg-dark-surface/90 p-4">
-                  <div className="flex items-start gap-3">
-                    <img src={salon.image} alt={salon.name} className="w-20 h-20 rounded-2xl object-cover" />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between gap-2">
-                        <p className="font-semibold truncate">{salon.name}</p>
-                        <button type="button" onClick={() => handleFavorite(salon.id, !salon.is_favorite)}>
-                          <Heart className={`w-4 h-4 ${salon.is_favorite ? 'fill-red-500 text-red-500' : 'text-text-secondary'}`} />
-                        </button>
-                      </div>
-                      <p className="text-xs text-text-muted mt-1 line-clamp-2">{salon.address}</p>
-                      <div className="flex items-center justify-between mt-3 text-xs text-text-secondary">
-                        <span className="inline-flex items-center gap-1"><Star className="w-3.5 h-3.5 fill-gold text-gold" />{salon.rating.toFixed(1)}</span>
-                        <span>{salon.distance}</span>
-                        <span className="text-gold">{salon.price_from} MAD</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+              </div>
+            )}
           </div>
         )}
       </div>
