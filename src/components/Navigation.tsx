@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X } from 'lucide-react';
+import { isAuthenticated } from '../services/authService';
 
 const navLinks = [
   { name: 'Accueil', href: '#hero' },
@@ -14,13 +15,26 @@ const navLinks = [
 export default function Navigation() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [authed, setAuthed] = useState(isAuthenticated());
 
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
     };
+
+    const syncAuthState = () => {
+      setAuthed(isAuthenticated());
+    };
+
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener('focus', syncAuthState);
+    window.addEventListener('storage', syncAuthState);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('focus', syncAuthState);
+      window.removeEventListener('storage', syncAuthState);
+    };
   }, []);
 
   return (
@@ -72,13 +86,19 @@ export default function Navigation() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.5 }}
-              className="hidden md:block"
+              className="hidden md:flex items-center gap-3"
             >
               <a
                 href="https://github.com/GosTsimo/Coifly-web/releases/download/v1.0.3/Coifly-v1.0.3.apk"
                 className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-gold text-black font-semibold rounded-xl hover:shadow-gold transition-all duration-300 hover:-translate-y-0.5"
               >
                 Télécharger l'app
+              </a>
+              <a
+                href={authed ? '/salon/testtt' : '/login'}
+                className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-gold text-black font-semibold rounded-xl hover:shadow-gold transition-all duration-300 hover:-translate-y-0.5"
+              >
+                {authed ? 'Espace client' : 'Se connecter / Inscrire'}
               </a>
             </motion.div>
 
@@ -126,6 +146,16 @@ export default function Navigation() {
                   className="mt-4 inline-flex items-center justify-center gap-2 px-6 py-4 bg-gradient-gold text-black font-semibold rounded-xl"
                 >
                   Télécharger l'app
+                </motion.a>
+                <motion.a
+                  href={authed ? '/salon/testtt' : '/login'}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.55 }}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="inline-flex items-center justify-center gap-2 px-6 py-4 bg-gradient-gold text-black font-semibold rounded-xl"
+                >
+                  {authed ? 'Espace client' : 'Se connecter / Inscrire'}
                 </motion.a>
               </div>
             </div>
