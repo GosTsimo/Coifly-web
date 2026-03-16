@@ -147,6 +147,14 @@ export default function SalonDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  function handleGoBack() {
+    if (isAuthenticated()) {
+      navigate('/client/home');
+    } else {
+      navigate('/');
+    }
+  }
+
   async function handleToggleFavorite(salonId: number) {
     if (!isAuthenticated()) {
       navigate('/login', {
@@ -249,12 +257,12 @@ export default function SalonDetailPage() {
         <div className="absolute inset-0 bg-gradient-to-t from-dark via-dark/30 to-transparent" />
 
         <div className="absolute top-0 left-0 right-0 flex items-center justify-between px-4 pt-4 sm:pt-6">
-          <Link
-            to="/"
+          <button
+            onClick={handleGoBack}
             className="w-10 h-10 rounded-full bg-dark/70 backdrop-blur-sm flex items-center justify-center hover:bg-dark/90 transition-colors"
           >
             <ArrowLeft className="w-5 h-5 text-white" />
-          </Link>
+          </button>
           <div className="flex gap-3">
             <button
               onClick={() => navigator.share?.({ title: salon.name, url: window.location.href })}
