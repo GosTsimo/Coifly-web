@@ -131,7 +131,13 @@ function createSlotsForDate(serviceIds: number[], slotInterval: number): Booking
   const picked = mockServices.filter((service) => serviceIds.includes(service.id));
   const totalDuration = Math.max(15, picked.reduce((sum, service) => sum + service.duration, 0));
   const slotStep = Math.max(15, slotInterval || 15);
-  const starts = ['09:00', '09:30', '10:00', '10:30', '11:15', '12:00', '14:00', '14:45', '15:30', '16:15', '17:00'];
+  const starts: string[] = [];
+
+  for (let minutes = 9 * 60; minutes <= 17 * 60; minutes += slotStep) {
+    const hour = Math.floor(minutes / 60);
+    const minute = minutes % 60;
+    starts.push(`${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`);
+  }
 
   return starts.map((start, index) => ({
     start_time: start,
