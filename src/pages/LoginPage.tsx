@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Eye, EyeOff, Lock, Mail, Phone, User } from 'lucide-react';
 import authService, { isAuthenticated } from '../services/authService';
@@ -84,10 +84,10 @@ export default function LoginPage() {
     <div className="min-h-screen bg-[radial-gradient(circle_at_20%_20%,rgba(195,156,86,0.18),transparent_35%),radial-gradient(circle_at_80%_0%,rgba(245,158,11,0.15),transparent_30%),#0B0B0F] text-white">
       <div className="max-w-5xl mx-auto px-4 py-8 sm:py-12">
         <div className="mb-8">
-          <Link to="/" className="inline-flex items-center gap-2 text-text-secondary hover:text-gold transition-colors">
+          <a href="https://www.coifly.app/salon/testtt" className="inline-flex items-center gap-2 text-text-secondary hover:text-gold transition-colors">
             <ArrowLeft className="w-4 h-4" />
             Retour
-          </Link>
+          </a>
         </div>
 
         <div className="grid lg:grid-cols-[1.05fr_1fr] gap-6 items-stretch">
