@@ -110,6 +110,13 @@ function SalonListCard({
   );
 }
 
+function computePinPosition(value: number, min: number, max: number) {
+  if (max === min) {
+    return 50;
+  }
+  return 10 + ((value - min) / (max - min)) * 80;
+}
+
 export default function ClientSalonSearchPage() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
@@ -246,6 +253,11 @@ export default function ClientSalonSearchPage() {
     }
   }
 
+  function handleSalonPress(salon: SearchSalonItem) {
+    const slugOrId = salon.slug || String(salon.id);
+    navigate(`/salon/${slugOrId}`);
+  }
+
   const mapSalons = useMemo(
     () => salons.filter((salon) => typeof salon.latitude === 'number' && typeof salon.longitude === 'number'),
     [salons]
@@ -263,6 +275,20 @@ export default function ClientSalonSearchPage() {
     }
     return null;
   }, [mapSalons, userLocation]);
+
+  const coordinateBounds = useMemo(() => {
+    if (mapSalons.length === 0) {
+      return null;
+    }
+    const latitudes = mapSalons.map((salon) => salon.latitude as number);
+    const longitudes = mapSalons.map((salon) => salon.longitude as number);
+    return {
+      minLat: Math.min(...latitudes),
+      maxLat: Math.max(...latitudes),
+      minLng: Math.min(...longitudes),
+      maxLng: Math.max(...longitudes),
+    };
+  }, [mapSalons]);
 
   const mapEmbedUrl = useMemo(() => {
     if (!mapCenter) {
@@ -385,13 +411,36 @@ export default function ClientSalonSearchPage() {
         ) : (
           <div className="rounded-3xl overflow-hidden border border-white/10 bg-dark-surface/85 min-h-[620px] relative">
             {mapEmbedUrl ? (
-              <iframe
-                title="Carte interactive des salons"
-                src={mapEmbedUrl}
-                className="w-full h-[620px]"
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-              />
+              <>
+                <iframe
+                  title="Carte interactive des salons"
+                  src={mapEmbedUrl}
+                  className="w-full h-[620px]"
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
+
+                {coordinateBounds &&
+                  mapSalons.map((salon) => {
+                    const left = computePinPosition(salon.longitude as number, coordinateBounds.minLng, coordinateBounds.maxLng);
+                    const top = computePinPosition(salon.latitude as number, coordinateBounds.minLat, coordinateBounds.maxLat);
+
+                    return (
+                      <button
+                        key={salon.id}
+                        type="button"
+                        onClick={() => handleSalonPress(salon)}
+                        className="absolute -translate-x-1/2 -translate-y-1/2"
+                        style={{ left: `${left}%`, top: `${100 - top}%` }}
+                        title={salon.name}
+                      >
+                        <div className="w-11 h-11 rounded-full bg-gradient-gold text-black font-bold shadow-lg shadow-gold/25 border-4 border-black/25 flex items-center justify-center">
+                          {salon.name.charAt(0)}
+                        </div>
+                      </button>
+                    );
+                  })}
+              </>
             ) : (
               <div className="absolute inset-0 flex items-center justify-center text-text-secondary">
                 <div className="text-center px-6">
