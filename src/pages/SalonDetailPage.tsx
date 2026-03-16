@@ -188,6 +188,7 @@ export default function SalonDetailPage() {
   const hasImages = images.length > 0;
   const todayFrench = JS_DAY_TO_FRENCH[new Date().getDay()];
   const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${salon.latitude},${salon.longitude}`;
+  const googleMapsEmbedUrl = `https://www.google.com/maps?q=${salon.latitude},${salon.longitude}&z=15&output=embed`;
   const ratingCounts = [5, 4, 3, 2, 1].map((star) => ({
     star,
     count: reviews.filter((r) => r.rating === star).length,
@@ -304,16 +305,6 @@ export default function SalonDetailPage() {
             <span className="text-text-primary font-medium">{salon.phone}</span>
             <ChevronRight className="w-4 h-4 text-text-muted ml-auto" />
           </a>
-
-          {salon.amenities.length > 0 && (
-            <div className="flex flex-wrap gap-2 mt-4">
-              {salon.amenities.map((a) => (
-                <span key={a.id} className="text-xs px-3 py-1 rounded-full bg-dark-elevated text-text-secondary border border-white/5">
-                  {a.name}
-                </span>
-              ))}
-            </div>
-          )}
         </motion.div>
 
         {/* ── Services ── */}
@@ -336,10 +327,7 @@ export default function SalonDetailPage() {
                     <p className="text-text-primary font-medium">{service.name}</p>
                     <p className="text-text-muted text-sm">{service.duration} min</p>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <span className="text-gold font-bold">{service.price} MAD</span>
-                    <button className="w-8 h-8 rounded-full bg-gold flex items-center justify-center text-dark font-bold text-lg hover:bg-gold-light transition-colors">+</button>
-                  </div>
+                  <span className="text-gold font-bold">{service.price} MAD</span>
                 </div>
               ))}
             </div>
@@ -521,11 +509,14 @@ export default function SalonDetailPage() {
               <MapPin className="w-4 h-4 mt-0.5 shrink-0 text-gold" />
               {salon.address}
             </p>
-            <div className="w-full h-40 rounded-xl overflow-hidden bg-dark-elevated flex flex-col items-center justify-center gap-2 mb-4">
-              <div className="w-10 h-10 rounded-full bg-gold/10 flex items-center justify-center">
-                <MapPin className="w-5 h-5 text-gold" />
-              </div>
-              <p className="text-text-muted text-xs">{salon.latitude.toFixed(5)}, {salon.longitude.toFixed(5)}</p>
+            <div className="w-full h-56 rounded-xl overflow-hidden border border-white/10 mb-4">
+              <iframe
+                title={`Carte ${salon.name}`}
+                src={googleMapsEmbedUrl}
+                className="w-full h-full"
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+              />
             </div>
             <a
               href={googleMapsUrl}
