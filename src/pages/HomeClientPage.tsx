@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Bell, Calendar, ChevronRight, Clock3, Heart, MapPin, Menu, Scissors, Star, User, UserCircle2, X } from 'lucide-react';
-import { getStoredToken, isAuthenticated } from '../services/authService';
+import { clearAuthSession, getStoredToken, isAuthenticated } from '../services/authService';
 
 type UserProfile = {
   id: number;
@@ -222,6 +222,12 @@ export default function HomeClientPage() {
     });
   }
 
+  function handleLogout() {
+    clearAuthSession();
+    setDrawerOpen(false);
+    navigate('/', { replace: true });
+  }
+
   const userContact = useMemo(() => profile.email || profile.phone || 'client@coifly.app', [profile.email, profile.phone]);
 
   return (
@@ -413,6 +419,13 @@ export default function HomeClientPage() {
               <a className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-white/5" href="#">Notifications <span className="text-xs bg-white/10 px-2 py-0.5 rounded-full">{unreadCount}</span></a>
               <a className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-white/5" href="#">Mon profil <ChevronRight className="w-4 h-4" /></a>
               <button className="w-full mt-3 px-3 py-2 rounded-lg border border-gold/40 text-gold text-left">Basculer vers mode coiffeur</button>
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="w-full mt-3 px-3 py-2 rounded-lg border border-red-400/30 bg-red-500/10 text-red-200 text-left hover:bg-red-500/15 transition-colors"
+              >
+                Se deconnecter
+              </button>
             </nav>
           </aside>
         </div>
