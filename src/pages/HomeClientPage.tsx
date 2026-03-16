@@ -45,15 +45,6 @@ const mockUser: UserProfile = {
   notifications_count: 0,
 };
 
-const mockUpcomingBooking: UpcomingBooking | null = {
-  id: 0,
-  date: new Date().toISOString().slice(0, 10),
-  time: '14:00',
-  salon_name: 'Barber Club Premium',
-  service_name: 'Coupe + Barbe',
-  barber_name: 'Yassine',
-};
-
 const mockFavorites: FavoriteSalon[] = [
   {
     id: 0,
@@ -205,7 +196,7 @@ export default function HomeClientPage() {
       const locationData = locationRes.status === 'fulfilled' ? locationRes.value : null;
 
       setProfile(profileData || mockUser);
-      setUpcoming(upcomingData || mockUpcomingBooking);
+      setUpcoming(upcomingData || null);
 
       const finalFavorites = favoritesData && favoritesData.length > 0 ? favoritesData : mockFavorites;
       setFavorites(finalFavorites);
