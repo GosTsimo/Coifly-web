@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Bell, Calendar, ChevronRight, Clock3, Heart, MapPin, Menu, Scissors, Star, User, UserCircle2, X } from 'lucide-react';
 import { clearAuthSession, getStoredToken, isAuthenticated } from '../services/authService';
+import { toggleSalonFavorite } from '../services/salonsService';
 
 type UserProfile = {
   id: number;
@@ -31,6 +32,7 @@ type FavoriteSalon = {
   distance: string;
   is_open: boolean;
   image: string;
+  salon_url?: string;
 };
 
 const API_BASE = 'https://beautybooking-f05a760bafaf.herokuapp.com/api';
@@ -114,6 +116,7 @@ async function getFavoriteSalons(): Promise<FavoriteSalon[] | null> {
     distance: salon?.distance || '',
     is_open: Boolean(salon?.is_open),
     image: salon?.image || salon?.images?.[0] || 'https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?w=800&auto=format&fit=crop',
+    salon_url: salon?.salon_url || undefined,
   }));
 }
 
@@ -155,7 +158,6 @@ export default function HomeClientPage() {
   const [profile, setProfile] = useState<UserProfile>(mockUser);
   const [upcoming, setUpcoming] = useState<UpcomingBooking | null>(null);
   const [favorites, setFavorites] = useState<FavoriteSalon[]>([]);
-  const [favoriteIds, setFavoriteIds] = useState<Set<number>>(new Set());
   const [unreadCount, setUnreadCount] = useState(0);
   const [locationLabel, setLocationLabel] = useState('Beni Mellal, Maroc');
 
@@ -187,7 +189,6 @@ export default function HomeClientPage() {
 
       const finalFavorites = favoritesData ?? [];
       setFavorites(finalFavorites);
-      setFavoriteIds(new Set(finalFavorites.map((salon) => salon.id)));
 
       setUnreadCount(typeof notifData === 'number' ? notifData : 0);
       setLocationLabel(locationData || 'Beni Mellal, Maroc');
@@ -197,22 +198,28 @@ export default function HomeClientPage() {
     void loadHomeData();
   }, [navigate]);
 
-  function toggleFavoriteLocal(salonId: number) {
-    setFavoriteIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(salonId)) {
-        next.delete(salonId);
-      } else {
-        next.add(salonId);
-      }
-      return next;
-    });
-  }
+
 
   function handleLogout() {
     clearAuthSession();
     setDrawerOpen(false);
     navigate('/', { replace: true });
+  }
+
+  function resolveSalonDetailPath(salon_url?: string, id?: number): string {
+    if (salon_url) return `/salon/${salon_url}`;
+    if (id) return `/salon/${id}`;
+    return '/';
+  }
+
+  async function handleRemoveFavorite(salonId: number, e: React.MouseEvent) {
+    e.stopPropagation();
+    try {
+      await toggleSalonFavorite(salonId);
+      setFavorites((prev) => prev.filter((s) => s.id !== salonId));
+    } catch (error) {
+      console.error('Erreur suppression favori:', error);
+    }
   }
 
   const userContact = useMemo(() => profile.email || profile.phone || 'client@coifly.app', [profile.email, profile.phone]);
@@ -347,35 +354,41 @@ export default function HomeClientPage() {
             <div className="rounded-2xl bg-dark-surface border border-white/10 p-5 text-text-secondary">Aucun salon favori.</div>
           ) : (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {favorites.map((salon) => {
-                const liked = favoriteIds.has(salon.id);
-                return (
-                  <article key={salon.id} className="rounded-2xl overflow-hidden bg-dark-surface border border-white/10">
-                    <div className="h-32 relative">
-                      <img src={salon.image} alt={salon.name} className="w-full h-full object-cover" />
-                      <div className="absolute inset-x-0 top-0 p-2 flex items-center justify-between">
-                        <span className={`text-[11px] px-2 py-1 rounded-full ${salon.is_open ? 'bg-emerald-500/80 text-white' : 'bg-zinc-700/90 text-zinc-200'}`}>
-                          {salon.is_open ? 'Ouvert' : 'Ferme'}
-                        </span>
-                        {salon.reviews_count > 100 && (
-                          <span className="text-[11px] px-2 py-1 rounded-full bg-gold/90 text-black font-semibold">Populaire</span>
-                        )}
+              {favorites.map((salon) => (
+                  <Link
+                    key={salon.id}
+                    to={resolveSalonDetailPath(salon.salon_url, salon.id)}
+                    className="rounded-2xl overflow-hidden bg-dark-surface border border-white/10 hover:border-gold/40 transition-all duration-300 hover:shadow-lg hover:shadow-gold/20 cursor-pointer block"
+                  >
+                    <article>
+                      <div className="h-32 relative">
+                        <img src={salon.image} alt={salon.name} className="w-full h-full object-cover" />
+                        <div className="absolute inset-x-0 top-0 p-2 flex items-center justify-between">
+                          <span className={`text-[11px] px-2 py-1 rounded-full ${salon.is_open ? 'bg-emerald-500/80 text-white' : 'bg-zinc-700/90 text-zinc-200'}`}>
+                            {salon.is_open ? 'Ouvert' : 'Ferme'}
+                          </span>
+                          {salon.reviews_count > 100 && (
+                            <span className="text-[11px] px-2 py-1 rounded-full bg-gold/90 text-black font-semibold">Populaire</span>
+                          )}
+                        </div>
+                        <button
+                          onClick={(e) => handleRemoveFavorite(salon.id, e)}
+                          className="absolute right-2 bottom-2 p-2 rounded-full bg-black/45 hover:bg-red-500/40 transition-colors"
+                        >
+                          <Heart className="w-4 h-4 fill-red-500 text-red-500" />
+                        </button>
                       </div>
-                      <button onClick={() => toggleFavoriteLocal(salon.id)} className="absolute right-2 bottom-2 p-2 rounded-full bg-black/45">
-                        <Heart className={`w-4 h-4 ${liked ? 'fill-red-500 text-red-500' : 'text-white'}`} />
-                      </button>
-                    </div>
-                    <div className="p-3">
-                      <h3 className="font-semibold leading-tight">{salon.name}</h3>
-                      <p className="text-xs text-text-muted mt-1 line-clamp-1">{salon.address}</p>
-                      <div className="mt-2 flex items-center justify-between text-xs text-text-secondary">
-                        <span className="inline-flex items-center gap-1"><Star className="w-3.5 h-3.5 fill-gold text-gold" />{salon.rating.toFixed(1)} ({salon.reviews_count})</span>
-                        <span className="inline-flex items-center gap-1"><MapPin className="w-3.5 h-3.5" />{salon.distance}</span>
+                      <div className="p-3">
+                        <h3 className="font-semibold leading-tight">{salon.name}</h3>
+                        <p className="text-xs text-text-muted mt-1 line-clamp-1">{salon.address}</p>
+                        <div className="mt-2 flex items-center justify-between text-xs text-text-secondary">
+                          <span className="inline-flex items-center gap-1"><Star className="w-3.5 h-3.5 fill-gold text-gold" />{salon.rating.toFixed(1)} ({salon.reviews_count})</span>
+                          <span className="inline-flex items-center gap-1"><MapPin className="w-3.5 h-3.5" />{salon.distance}</span>
+                        </div>
                       </div>
-                    </div>
-                  </article>
-                );
-              })}
+                    </article>
+                  </Link>
+              ))}
             </div>
           )}
         </section>
