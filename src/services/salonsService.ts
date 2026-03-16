@@ -6,6 +6,7 @@ const FAVORITES_STORAGE_KEY = 'salon_favorite_ids';
 export type SearchSalonItem = {
   id: number;
   slug: string | null;
+  salon_url: string | null;
   name: string;
   rating: number;
   reviews_count: number;
@@ -71,6 +72,7 @@ function mapApiSalonToUI(salon: any, favoriteIds = new Set<number>()): SearchSal
   return {
     id: Number(salon?.id || 0),
     slug: salon?.slug || null,
+    salon_url: salon?.salon_url || null,
     name: salon?.name || 'Salon',
     rating: Number(salon?.rating || 0),
     reviews_count: Number(salon?.reviews_count || 0),

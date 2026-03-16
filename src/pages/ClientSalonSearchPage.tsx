@@ -125,6 +125,29 @@ function computePinPosition(value: number, min: number, max: number) {
   return 10 + ((value - min) / (max - min)) * 80;
 }
 
+function resolveSalonDetailPath(salon: SearchSalonItem) {
+  const salonUrl = salon.salon_url?.trim();
+
+  if (salonUrl) {
+    if (salonUrl.startsWith('http://') || salonUrl.startsWith('https://')) {
+      try {
+        const parsed = new URL(salonUrl);
+        return parsed.pathname || `/salon/${salon.slug || salon.id}`;
+      } catch {
+        return `/salon/${salon.slug || salon.id}`;
+      }
+    }
+
+    if (salonUrl.startsWith('/')) {
+      return salonUrl;
+    }
+
+    return `/salon/${salonUrl}`;
+  }
+
+  return `/salon/${salon.slug || salon.id}`;
+}
+
 export default function ClientSalonSearchPage() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
@@ -262,8 +285,7 @@ export default function ClientSalonSearchPage() {
   }
 
   function handleSalonPress(salon: SearchSalonItem) {
-    const slugOrId = salon.slug || String(salon.id);
-    navigate(`/salon/${slugOrId}`);
+    navigate(resolveSalonDetailPath(salon));
   }
 
   const mapSalons = useMemo(
