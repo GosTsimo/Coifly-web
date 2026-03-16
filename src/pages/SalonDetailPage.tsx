@@ -13,6 +13,7 @@ import {
   ChevronRight,
   Scissors,
   Calendar,
+  Download as DownloadIcon,
   ExternalLink,
   Loader2,
 } from 'lucide-react';
@@ -219,6 +220,7 @@ export default function SalonDetailPage() {
   const todayFrench = JS_DAY_TO_FRENCH[new Date().getDay()];
   const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${salon.latitude},${salon.longitude}`;
   const googleMapsEmbedUrl = `https://www.google.com/maps?q=${salon.latitude},${salon.longitude}&z=15&output=embed`;
+  const appDownloadUrl = 'https://github.com/GosTsimo/Coifly-web/releases/download/v1.0.3/Coifly-v1.0.3.apk';
   const ratingCounts = [5, 4, 3, 2, 1].map((star) => ({
     star,
     count: reviews.filter((r) => r.rating === star).length,
@@ -570,27 +572,38 @@ export default function SalonDetailPage() {
           transition={{ duration: 0.5, delay: 0.4 }}
           className="max-w-2xl mx-auto"
         >
-          <button
-            type="button"
-            onClick={() => {
-              const bookingPath = `/salon/${slug}/booking`;
-              const bookingState = { salonId: salon.id, salonName: salon.name };
-              if (isAuthenticated()) {
-                navigate(bookingPath, { state: bookingState });
-                return;
-              }
-              navigate('/login', {
-                state: {
-                  redirectTo: bookingPath,
-                  bookingState,
-                },
-              });
-            }}
-            className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl bg-gold hover:bg-gold-light active:bg-gold-dark text-dark font-bold text-base transition-colors shadow-lg shadow-gold/20"
-          >
-            <Calendar className="w-5 h-5" />
-            Réserver maintenant
-          </button>
+          <div className="grid grid-cols-2 gap-3">
+            <a
+              href={appDownloadUrl}
+              download
+              className="flex items-center justify-center gap-2 py-4 rounded-2xl bg-dark-surface border border-gold/30 hover:border-gold/60 text-gold font-semibold text-sm sm:text-base transition-colors"
+            >
+              <DownloadIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+              Télécharger l'app
+            </a>
+
+            <button
+              type="button"
+              onClick={() => {
+                const bookingPath = `/salon/${slug}/booking`;
+                const bookingState = { salonId: salon.id, salonName: salon.name };
+                if (isAuthenticated()) {
+                  navigate(bookingPath, { state: bookingState });
+                  return;
+                }
+                navigate('/login', {
+                  state: {
+                    redirectTo: bookingPath,
+                    bookingState,
+                  },
+                });
+              }}
+              className="flex items-center justify-center gap-3 py-4 rounded-2xl bg-gold hover:bg-gold-light active:bg-gold-dark text-dark font-bold text-sm sm:text-base transition-colors shadow-lg shadow-gold/20"
+            >
+              <Calendar className="w-4 h-4 sm:w-5 sm:h-5" />
+              Réserver maintenant
+            </button>
+          </div>
         </motion.div>
       </div>
     </div>
