@@ -65,6 +65,29 @@ function safeCoordinate(value: unknown) {
   return parsed;
 }
 
+function normalizeCategoryValue(category: unknown): string {
+  if (typeof category === 'string') {
+    return category;
+  }
+
+  if (category && typeof category === 'object') {
+    const candidate = category as {
+      slug?: unknown;
+      name?: unknown;
+      label?: unknown;
+      title?: unknown;
+      type?: unknown;
+    };
+
+    const preferred = candidate.slug ?? candidate.name ?? candidate.label ?? candidate.title ?? candidate.type;
+    if (typeof preferred === 'string') {
+      return preferred;
+    }
+  }
+
+  return '';
+}
+
 function mapApiSalonToUI(salon: any, favoriteIds = new Set<number>()): SearchSalonItem {
   const latitude = safeCoordinate(salon?.latitude ?? salon?.coordinates?.latitude);
   const longitude = safeCoordinate(salon?.longitude ?? salon?.coordinates?.longitude);
@@ -85,7 +108,9 @@ function mapApiSalonToUI(salon: any, favoriteIds = new Set<number>()): SearchSal
       salon?.image ||
       salon?.images?.[0] ||
       'https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?w=1200&auto=format&fit=crop',
-    categories: Array.isArray(salon?.categories) ? salon.categories : [],
+    categories: Array.isArray(salon?.categories)
+      ? salon.categories.map((category: unknown) => normalizeCategoryValue(category)).filter(Boolean)
+      : [],
     latitude,
     longitude,
   };
@@ -120,7 +145,7 @@ export async function getSalonCategories(): Promise<string[]> {
       : Array.isArray(body?.categories)
         ? body.categories
         : [];
-    return categories.map((category: unknown) => String(category)).filter(Boolean);
+    return categories.map((category: unknown) => normalizeCategoryValue(category)).filter(Boolean);
   } catch {
     return [];
   }
