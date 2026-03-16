@@ -5,7 +5,6 @@ import {
   BadgeDollarSign,
   Filter,
   Heart,
-  Loader2,
   Map,
   MapPin,
   Search,
