@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Bell, Calendar, ChevronRight, Heart, MapPin, Menu, Star, UserCircle2, X } from 'lucide-react';
+import { Bell, Calendar, ChevronRight, Clock3, Heart, MapPin, Menu, Scissors, Star, User, UserCircle2, X } from 'lucide-react';
 import { getStoredToken, isAuthenticated } from '../services/authService';
 
 type UserProfile = {
@@ -156,6 +156,19 @@ async function getUserLocation(): Promise<string | null> {
   return [city, country].filter(Boolean).join(', ');
 }
 
+function formatBookingDate(date: string) {
+  const parsed = new Date(date);
+  if (Number.isNaN(parsed.getTime())) {
+    return date;
+  }
+  return parsed.toLocaleDateString('fr-FR', {
+    weekday: 'long',
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
+  });
+}
+
 export default function HomeClientPage() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
@@ -258,12 +271,47 @@ export default function HomeClientPage() {
           {loading ? (
             <div className="rounded-2xl bg-dark-surface border border-white/10 p-5 text-text-secondary">Chargement...</div>
           ) : upcoming ? (
-            <div className="rounded-2xl p-5 bg-gradient-to-br from-gold/85 to-amber-500/85 text-black shadow-lg">
-              <div className="inline-flex items-center gap-2 bg-black/15 px-3 py-1 rounded-full text-xs font-semibold mb-3">Confirme</div>
-              <h3 className="text-2xl font-bold leading-tight">{upcoming.salon_name}</h3>
-              <p className="text-sm mt-1">{upcoming.service_name} · {upcoming.time}</p>
-              <p className="text-sm mt-1">Avec {upcoming.barber_name}</p>
-              <p className="text-sm mt-3 opacity-80">{upcoming.date}</p>
+            <div className="relative overflow-hidden rounded-3xl p-5 sm:p-6 bg-gradient-to-br from-[#d2ad6d] via-[#c39c56] to-[#996f2f] text-black shadow-xl">
+              <div className="absolute -right-10 -top-10 w-40 h-40 rounded-full bg-black/10 blur-2xl" />
+              <div className="absolute -left-12 -bottom-12 w-44 h-44 rounded-full bg-white/10 blur-2xl" />
+
+              <div className="relative">
+                <div className="flex items-center justify-between gap-2 mb-4">
+                  <span className="inline-flex items-center gap-2 bg-black/15 px-3 py-1 rounded-full text-xs font-semibold">
+                    <Calendar className="w-3.5 h-3.5" />
+                    Confirme
+                  </span>
+                  <span className="text-xs bg-black/15 px-2.5 py-1 rounded-full font-medium">Prochain passage</span>
+                </div>
+
+                <h3 className="text-2xl sm:text-3xl font-extrabold leading-tight tracking-tight">{upcoming.salon_name}</h3>
+                <p className="text-sm mt-1.5 text-black/75">{formatBookingDate(upcoming.date)}</p>
+
+                <div className="grid sm:grid-cols-3 gap-2.5 mt-5">
+                  <div className="rounded-xl bg-black/12 px-3 py-2.5">
+                    <p className="text-[11px] uppercase tracking-wide text-black/70 mb-1">Service</p>
+                    <p className="text-sm font-semibold inline-flex items-center gap-1.5"><Scissors className="w-3.5 h-3.5" />{upcoming.service_name}</p>
+                  </div>
+                  <div className="rounded-xl bg-black/12 px-3 py-2.5">
+                    <p className="text-[11px] uppercase tracking-wide text-black/70 mb-1">Horaire</p>
+                    <p className="text-sm font-semibold inline-flex items-center gap-1.5"><Clock3 className="w-3.5 h-3.5" />{upcoming.time}</p>
+                  </div>
+                  <div className="rounded-xl bg-black/12 px-3 py-2.5">
+                    <p className="text-[11px] uppercase tracking-wide text-black/70 mb-1">Coiffeur</p>
+                    <p className="text-sm font-semibold inline-flex items-center gap-1.5"><User className="w-3.5 h-3.5" />{upcoming.barber_name}</p>
+                  </div>
+                </div>
+
+                <div className="mt-5">
+                  <Link
+                    to="/salon/testtt"
+                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-black text-white font-semibold hover:bg-black/85 transition-colors"
+                  >
+                    Voir le detail
+                    <ChevronRight className="w-4 h-4" />
+                  </Link>
+                </div>
+              </div>
             </div>
           ) : (
             <div className="rounded-2xl bg-dark-surface border border-white/10 p-5">
