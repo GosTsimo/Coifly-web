@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   ArrowLeft,
@@ -16,6 +16,7 @@ import {
   ExternalLink,
   Loader2,
 } from 'lucide-react';
+import { isAuthenticated } from '../services/authService';
 
 // ─── API Types ────────────────────────────────────────────────────────────────
 
@@ -136,6 +137,7 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
 
 export default function SalonDetailPage() {
   const { slug } = useParams<{ slug: string }>();
+  const navigate = useNavigate();
   const [activeImage, setActiveImage] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
   const [data, setData] = useState<ApiData | null>(null);
@@ -546,14 +548,27 @@ export default function SalonDetailPage() {
           transition={{ duration: 0.5, delay: 0.4 }}
           className="max-w-2xl mx-auto"
         >
-          <Link
-            to={`/salon/${slug}/booking`}
-            state={{ salonId: salon.id, salonName: salon.name }}
+          <button
+            type="button"
+            onClick={() => {
+              const bookingPath = `/salon/${slug}/booking`;
+              const bookingState = { salonId: salon.id, salonName: salon.name };
+              if (isAuthenticated()) {
+                navigate(bookingPath, { state: bookingState });
+                return;
+              }
+              navigate('/login', {
+                state: {
+                  redirectTo: bookingPath,
+                  bookingState,
+                },
+              });
+            }}
             className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl bg-gold hover:bg-gold-light active:bg-gold-dark text-dark font-bold text-base transition-colors shadow-lg shadow-gold/20"
           >
             <Calendar className="w-5 h-5" />
             Réserver maintenant
-          </Link>
+          </button>
         </motion.div>
       </div>
     </div>
