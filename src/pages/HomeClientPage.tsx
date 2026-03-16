@@ -207,7 +207,14 @@ export default function HomeClientPage() {
   }
 
   function resolveSalonDetailPath(salon_url?: string, id?: number): string {
-    if (salon_url) return `/salon/${salon_url}`;
+    if (salon_url) {
+      // Si c'est une URL complète (commence par http/https), la retourner directement
+      if (salon_url.startsWith('http')) {
+        return salon_url;
+      }
+      // Sinon c'est un slug local, le préfixer avec /salon/
+      return `/salon/${salon_url}`;
+    }
     if (id) return `/salon/${id}`;
     return '/';
   }
