@@ -418,7 +418,6 @@ export default function HomeClientPage() {
               <Link to="/client/bookings" onClick={() => setDrawerOpen(false)} className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-white/5">Mes reservations <span className="text-xs bg-white/10 px-2 py-0.5 rounded-full">{profile.bookings_count}</span></Link>
               <a className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-white/5" href="#">Notifications <span className="text-xs bg-white/10 px-2 py-0.5 rounded-full">{unreadCount}</span></a>
               <a className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-white/5" href="#">Mon profil <ChevronRight className="w-4 h-4" /></a>
-              <button className="w-full mt-3 px-3 py-2 rounded-lg border border-gold/40 text-gold text-left">Basculer vers mode coiffeur</button>
               <button
                 type="button"
                 onClick={handleLogout}
