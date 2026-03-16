@@ -18,6 +18,14 @@ import {
   ExternalLink,
   Loader2,
   X,
+  Users,
+  Images,
+  Leaf,
+  Sparkles,
+  Palette,
+  Droplets,
+  Wind,
+  Brush,
 } from 'lucide-react';
 import { isAuthenticated } from '../services/authService';
 import { toggleSalonFavorite } from '../services/salonsService';
@@ -102,18 +110,18 @@ const API_BASE = 'https://beautybooking-f05a760bafaf.herokuapp.com/api';
 
 const JS_DAY_TO_FRENCH = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
 
-const SERVICE_ICON_MAP: Record<string, string> = {
-  'content-cut': '✂️',
-  'spa': '🌿',
-  'face': '💆',
-  'color-lens': '🎨',
-  'hot-tub': '🧖',
-  'self-improvement': '🧘',
-  'brush': '🖌️',
+const SERVICE_ICON_MAP: Record<string, React.ReactNode> = {
+  'content-cut': <Scissors className="w-5 h-5 text-gold" />,
+  'spa': <Leaf className="w-5 h-5 text-gold" />,
+  'face': <Sparkles className="w-5 h-5 text-gold" />,
+  'color-lens': <Palette className="w-5 h-5 text-gold" />,
+  'hot-tub': <Droplets className="w-5 h-5 text-gold" />,
+  'self-improvement': <Wind className="w-5 h-5 text-gold" />,
+  'brush': <Brush className="w-5 h-5 text-gold" />,
 };
 
-function serviceEmoji(icon: string): string {
-  return SERVICE_ICON_MAP[icon] ?? '✂️';
+function serviceIcon(icon: string): React.ReactNode {
+  return SERVICE_ICON_MAP[icon] ?? <Scissors className="w-5 h-5 text-gold" />;
 }
 
 function formatDate(iso: string): string {
@@ -394,7 +402,9 @@ export default function SalonDetailPage() {
             <div className="flex flex-col gap-3">
               {services.map((service) => (
                 <div key={service.id} className="flex items-center gap-4 bg-dark-surface rounded-xl px-4 py-4 border border-white/5 hover:border-gold/20 transition-colors">
-                  <span className="text-2xl">{serviceEmoji(service.icon)}</span>
+                  <div className="w-9 h-9 rounded-xl bg-gold/10 border border-gold/20 flex items-center justify-center shrink-0">
+                    {serviceIcon(service.icon)}
+                  </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-text-primary font-medium">{service.name}</p>
                     <p className="text-text-muted text-sm">{service.duration} min</p>
@@ -415,7 +425,7 @@ export default function SalonDetailPage() {
             className="mb-8"
           >
             <SectionTitle>
-              <span className="text-gold">👥</span>
+              <Users className="w-5 h-5 text-gold" />
               Notre équipe
             </SectionTitle>
             <div className="flex gap-4 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-none">
@@ -455,7 +465,7 @@ export default function SalonDetailPage() {
             className="mb-8"
           >
             <SectionTitle>
-              <span className="text-gold">🖼️</span>
+              <Images className="w-5 h-5 text-gold" />
               Galerie
             </SectionTitle>
             <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
