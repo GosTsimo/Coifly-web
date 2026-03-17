@@ -106,7 +106,14 @@ interface ApiData {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-const API_BASE = 'https://beautybooking-f05a760bafaf.herokuapp.com/api';
+const API_BASE = import.meta.env.VITE_API_BASE || '/api';
+
+function apiHeaders() {
+  return {
+    Accept: 'application/json',
+    'Content-Type': 'application/json',
+  };
+}
 
 const JS_DAY_TO_FRENCH = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
 
@@ -226,7 +233,7 @@ export default function SalonDetailPage() {
     if (!slug) return;
     setLoading(true);
     setError(null);
-    fetch(`${API_BASE}/salon/${encodeURIComponent(slug)}`)
+    fetch(`${API_BASE}/salon/${encodeURIComponent(slug)}`, { headers: apiHeaders() })
       .then((res) => {
         if (!res.ok) throw new Error(`Salon introuvable (${res.status})`);
         return res.json();

@@ -47,7 +47,7 @@ type BookingItem = {
   hasReview: boolean;
 };
 
-const API_BASE = 'https://beautybooking-f05a760bafaf.herokuapp.com/api';
+const API_BASE = import.meta.env.VITE_API_BASE || '/api';
 const EMPTY_IMAGE = 'https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=1200&auto=format&fit=crop';
 
 function authHeaders() {
