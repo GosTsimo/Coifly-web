@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react"
+import { useMemo } from "react"
 import type { ColumnDef } from "@tanstack/react-table"
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis, AreaChart, Area, ReferenceLine } from "recharts"
 import { AlertTriangle, BadgeDollarSign, CalendarDays, Store, Ticket, Users, Activity } from "lucide-react"
@@ -51,39 +51,6 @@ export default function DashboardPage() {
   const recentBookings = useBookings({ per_page: 6, page: 1 })
   const recentTickets = useTickets({ per_page: 6, page: 1 })
   const recentReviews = useReviews("all", false)
-
-  useEffect(() => {
-    if (!kpis.data) return
-    const kpiData = kpis.data
-    const missingWidgetFields = ["bookings_total", "bookings_completed", "cancellation_rate", "no_show_rate"].filter(
-      (field) => !(field in kpiData)
-    )
-
-    console.group("[Dashboard] KPI payload debug")
-    console.log("raw kpis data:", kpiData)
-    console.log("kpi keys:", Object.keys(kpiData))
-    if (missingWidgetFields.length > 0) {
-      console.warn("[Dashboard] Missing KPI fields for widgets:", missingWidgetFields)
-    }
-    console.log("mapped widget values:", {
-      bookings_total: kpiData.bookings_total,
-      bookings_completed: kpiData.bookings_completed,
-      bookings_cancelled: kpiData.bookings_cancelled,
-      bookings_no_show: kpiData.bookings_no_show,
-      cancellation_rate: kpiData.cancellation_rate,
-      no_show_rate: kpiData.no_show_rate,
-      revenue_completed: kpiData.revenue_completed,
-      active_tickets: kpiData.active_tickets,
-      queued_jobs: kpiData.queued_jobs,
-      failed_jobs: kpiData.failed_jobs,
-    })
-    console.groupEnd()
-  }, [kpis.data])
-
-  useEffect(() => {
-    if (!trends.data) return
-    console.log("[Dashboard] trends payload:", trends.data)
-  }, [trends.data])
 
   const bookingColumns = useMemo<ColumnDef<Booking>[]>(
     () => [

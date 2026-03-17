@@ -40,26 +40,14 @@ function authHeaders(): HeadersInit {
 }
 
 async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<ApiEnvelope<T>> {
-  const token = getToken()
-  
-  // Log the request for debugging
-  console.debug(`[API] ${options.method || 'GET'} ${API_BASE}${path}`, {
-    hasToken: !!token,
-    tokenPrefix: token ? token.substring(0, 20) + '...' : 'none',
-  })
-
   try {
     const res = await fetch(`${API_BASE}${path}`, {
       ...options,
       headers: { ...authHeaders(), ...(options.headers ?? {}) },
     })
 
-    // Log response status
-    console.debug(`[API] Response: ${res.status} ${res.statusText}`)
-
     // Handle 401 Unauthenticated
     if (res.status === 401) {
-      console.warn('[API] Received 401 - clearing auth and redirecting')
       localStorage.removeItem(TOKEN_KEY)
       localStorage.removeItem('coifly_user')
       
@@ -80,16 +68,12 @@ async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<Api
       }
       
       const errorMsg = errorData?.message || `HTTP ${res.status}: ${res.statusText}`
-      console.error(`[API] Error: ${errorMsg}`, errorData)
       throw new Error(errorMsg)
     }
 
     const json = await res.json()
-    console.debug(`[API] Success`, { success: json.success })
     return json as ApiEnvelope<T>
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown error'
-    console.error(`[API] Exception on ${path}:`, message, error)
     throw error
   }
 }
@@ -168,21 +152,11 @@ export const adminApi = {
   async getDashboardKpis(days = 30) {
     const query = buildQuery({ days })
     try {
-      const response = await apiFetch<DashboardKpis>(`/admin/kpis${query}`)
-      console.log("[AdminAPI] KPI primary route /admin/kpis response:", response)
-      if (response?.data) {
-        console.log("[AdminAPI] KPI primary route data keys:", Object.keys(response.data))
-      }
-      return response
+      return await apiFetch<DashboardKpis>(`/admin/kpis${query}`)
     } catch (error) {
       const msg = error instanceof Error ? error.message : ""
       if (msg.toLowerCase().includes("could not be found") || msg.includes("404")) {
-        const fallbackResponse = await apiFetch<DashboardKpis>(`/admin/dashboard/kpis${query}`)
-        console.log("[AdminAPI] KPI fallback route /admin/dashboard/kpis response:", fallbackResponse)
-        if (fallbackResponse?.data) {
-          console.log("[AdminAPI] KPI fallback route data keys:", Object.keys(fallbackResponse.data))
-        }
-        return fallbackResponse
+        return await apiFetch<DashboardKpis>(`/admin/dashboard/kpis${query}`)
       }
       throw error
     }
@@ -196,7 +170,6 @@ export const adminApi = {
     })
 
     const raw = await res.text()
-    console.log("[AdminAPI] Trends raw response text:", raw)
 
     if (res.status === 401) {
       localStorage.removeItem(TOKEN_KEY)
@@ -212,7 +185,6 @@ export const adminApi = {
     }
 
     const parsed = JSON.parse(raw) as ApiEnvelope<TrendPoint[]>
-    console.log("[AdminAPI] Trends parsed response:", parsed)
     return parsed
   },
 

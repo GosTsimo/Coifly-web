@@ -53,9 +53,7 @@ async function parseJson(response: Response): Promise<any> {
 }
 
 export function getStoredToken(): string | null {
-  const token = localStorage.getItem(TOKEN_KEY);
-  console.debug('[Auth] Getting stored token', { hasToken: !!token });
-  return token;
+  return localStorage.getItem(TOKEN_KEY);
 }
 
 export function isAuthenticated(): boolean {
@@ -63,10 +61,8 @@ export function isAuthenticated(): boolean {
 }
 
 export function storeAuthSession(data: LoginData) {
-  console.debug('[Auth] Storing auth session', { userId: data.user.id, hasToken: !!data.token })
   localStorage.setItem(TOKEN_KEY, data.token);
   localStorage.setItem(USER_KEY, JSON.stringify(data.user));
-  console.debug('[Auth] Auth session stored successfully')
 }
 
 export function clearAuthSession() {
