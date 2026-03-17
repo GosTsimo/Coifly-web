@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import Navigation from './components/Navigation';
 import Hero from './sections/Hero';
 import Features from './sections/Features';
@@ -16,6 +17,21 @@ import LoginPage from './pages/LoginPage';
 import HomeClientPage from './pages/HomeClientPage';
 import MyBookingsPage from './pages/MyBookingsPage';
 import ClientSalonSearchPage from './pages/ClientSalonSearchPage';
+import { AdminLayout } from './components/dashboard/AdminLayout';
+import DashboardPage from './app/dashboard/page';
+import UsersPage from './app/users/page';
+import BarbersPage from './app/barbers/page';
+import SalonsPage from './app/salons/page';
+import BookingsPage from './app/bookings/page';
+import ReviewsPage from './app/reviews/page';
+import TicketsPage from './app/tickets/page';
+import DevicesPage from './app/devices/page';
+import AnalyticsPage from './app/analytics/page';
+import SystemPage from './app/system/page';
+import AuditPage from './app/audit/page';
+import SettingsPage from './app/settings/page';
+
+const queryClient = new QueryClient();
 
 function HomePage() {
   useEffect(() => {
@@ -57,17 +73,34 @@ function HomePage() {
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/client/home" element={<HomeClientPage />} />
-        <Route path="/client/salons" element={<ClientSalonSearchPage />} />
-        <Route path="/client/bookings" element={<MyBookingsPage />} />
-        <Route path="/salon/:slug" element={<SalonDetailPage />} />
-        <Route path="/salon/:slug/booking" element={<BookingScreenPage />} />
-      </Routes>
-    </BrowserRouter>
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/client/home" element={<HomeClientPage />} />
+          <Route path="/client/salons" element={<ClientSalonSearchPage />} />
+          <Route path="/client/bookings" element={<MyBookingsPage />} />
+          <Route path="/salon/:slug" element={<SalonDetailPage />} />
+          <Route path="/salon/:slug/booking" element={<BookingScreenPage />} />
+
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route path="dashboard" element={<DashboardPage />} />
+            <Route path="users" element={<UsersPage />} />
+            <Route path="barbers" element={<BarbersPage />} />
+            <Route path="salons" element={<SalonsPage />} />
+            <Route path="bookings" element={<BookingsPage />} />
+            <Route path="reviews" element={<ReviewsPage />} />
+            <Route path="tickets" element={<TicketsPage />} />
+            <Route path="devices" element={<DevicesPage />} />
+            <Route path="analytics" element={<AnalyticsPage />} />
+            <Route path="system" element={<SystemPage />} />
+            <Route path="audit" element={<AuditPage />} />
+            <Route path="settings" element={<SettingsPage />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </QueryClientProvider>
   );
 }
 
