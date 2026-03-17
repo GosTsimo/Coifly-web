@@ -125,8 +125,8 @@ export const adminApi = {
   },
 
   async moderateSalon(salonId: number, payload: { status: ModerationStatus; reason?: string }) {
-    return apiFetch<Salon>(`/admin/salons/${salonId}/moderate`, {
-      method: "PATCH",
+    return apiFetch<Salon>(`/admin/salons/${salonId}/moderation`, {
+      method: "PUT",
       body: JSON.stringify(payload),
     })
   },

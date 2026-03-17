@@ -1,6 +1,6 @@
 export type AccountStatus = "active" | "suspended" | "banned"
 export type UserRole = "client" | "barber" | "salon_owner" | "admin"
-export type ModerationStatus = "pending" | "approved" | "refused" | "rejected" | "active" | "inactive"
+export type ModerationStatus = "pending" | "approved" | "refused" | "active" | "inactive"
 export type BookingStatus = "pending" | "confirmed" | "cancelled" | "completed" | "no_show"
 export type ServiceStatus = "operational" | "degraded" | "outage"
 export type TicketStatus = "open" | "pending" | "resolved"
