@@ -249,6 +249,15 @@ export function useCreateSystemService() {
 export function useAuditLogs(page = 1, perPage = 10) {
   return useQuery({
     queryKey: adminKeys.audit(page, perPage),
-    queryFn: async () => (await adminApi.getAuditLogs(page, perPage)).data,
+    queryFn: async () => {
+      try {
+        const response = await adminApi.getAuditLogs(page, perPage)
+        return response.data
+      } catch (error) {
+        console.error("[Audit] Query error object:", error)
+        console.error("[Audit] Query error message:", error instanceof Error ? error.message : "Unknown error")
+        throw error
+      }
+    },
   })
 }

@@ -276,6 +276,40 @@ export const adminApi = {
   },
 
   async getAuditLogs(page = 1, per_page = 10) {
-    return apiFetch<PaginatedResponse<AuditLog>>(`/admin/audit-logs${buildQuery({ page, per_page })}`)
+    const path = `/admin/audit-logs${buildQuery({ page, per_page })}`
+    const url = `${API_BASE}${path}`
+
+    console.log("[Audit] Request:", { url, method: "GET", params: { page, per_page } })
+
+    const res = await fetch(url, {
+      method: "GET",
+      headers: authHeaders(),
+    })
+
+    const raw = await res.text()
+    console.log("[Audit] Response status:", { status: res.status, statusText: res.statusText })
+    console.log("[Audit] Raw response text:", raw)
+
+    if (res.status === 401) {
+      localStorage.removeItem(TOKEN_KEY)
+      localStorage.removeItem("coifly_user")
+      if (window.location.pathname !== "/login") {
+        window.location.href = "/login"
+      }
+      throw new Error("Unauthenticated - token invalid or expired")
+    }
+
+    if (!res.ok) {
+      throw new Error(`Audit logs request failed: HTTP ${res.status} ${res.statusText} - ${raw}`)
+    }
+
+    try {
+      const parsed = JSON.parse(raw) as ApiEnvelope<PaginatedResponse<AuditLog>>
+      console.log("[Audit] Parsed response:", parsed)
+      return parsed
+    } catch (error) {
+      console.error("[Audit] JSON parse error:", error)
+      throw new Error(`Audit logs parse error: ${raw}`)
+    }
   },
 }
