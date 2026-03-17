@@ -72,7 +72,7 @@ export default function TicketsPage() {
                 {selected.messages.map((m) => (
                   <div key={m.id} className="space-y-1">
                     <p className="text-xs font-medium">{m.sender.name}</p>
-                    <p className="text-sm">{m.message}</p>
+                    <p className="text-sm">{m.text}</p>
                   </div>
                 ))}
               </div>

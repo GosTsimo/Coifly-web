@@ -20,13 +20,24 @@ export interface ApiEnvelope<T> {
   message?: string
 }
 
+export interface Role {
+  id: number
+  name: string
+  display_name: string
+}
+
 export interface User {
   id: number
   name: string
   email: string
   phone: string
-  roles: UserRole[]
+  photo_url: string | null
   account_status: AccountStatus
+  status_note: string | null
+  suspended_at: string | null
+  banned_at: string | null
+  created_at: string
+  roles: Role[]
 }
 
 export interface UserActivity {
@@ -47,37 +58,51 @@ export interface UserActivity {
 
 export interface Barber {
   id: number
-  name: string
-  email: string
-  phone: string
+  user_id: number
+  salon_id: number
   status: ModerationStatus
-  city: string
-  rating: number
+  is_active: boolean
+  bio: string
+  created_at: string
+  updated_at: string
 }
 
 export interface Salon {
   id: number
+  owner_id: number
   name: string
-  owner_name: string
-  city: string
   status: ModerationStatus
-  rating: number
+  is_active: boolean
+  address: string
+  created_at: string
+  updated_at: string
 }
 
 export interface Booking {
-  id: string
+  id: number
+  client_id: number
+  salon_id: number
+  barber_id: number
+  status: BookingStatus
+  booking_date: string
+  start_time: string
+  end_time: string
+  total_price: string
+  confirmed_at: string | null
+  completed_at: string | null
+  cancelled_at: string | null
+  cancelled_by?: number
+  cancellation_reason?: string
+  updated_at?: string
+  salon: {
+    id: number
+    name: string
+  }
   client: {
     id: number
     name: string
     email: string
   }
-  salon: {
-    id: number
-    name: string
-  }
-  date: string
-  price: number
-  status: BookingStatus
 }
 
 export interface DashboardKpis {
@@ -100,55 +125,86 @@ export interface DashboardKpis {
   system_status: ServiceStatus
 }
 
-export interface Review {
+export interface SalonReview {
   id: number
-  type: "salon" | "barber"
-  user_name: string
+  salon_id: number
+  client_id: number
   rating: number
-  target_name: string
-  content: string
-  hidden: boolean
-  created_at: string
+  comment: string
+  is_hidden: boolean
+  moderated_by: number | null
+  moderated_at: string | null
+  moderation_reason: string | null
+  salon: {
+    id: number
+    name: string
+  }
+  user: Pick<User, "id" | "name" | "email">
 }
+
+export interface BarberReview {
+  id: number
+  booking_id: number
+  barber_id: number
+  client_id: number
+  rating: number
+  comment: string
+  is_hidden: boolean
+  barber: {
+    id: number
+    user_id: number
+  }
+  user: Pick<User, "id" | "name" | "email">
+}
+
+export type Review = SalonReview | BarberReview
 
 export interface Device {
   id: number
-  user: Pick<User, "id" | "name" | "email">
+  user_id: number
+  device_token: string
   platform: "ios" | "android" | "web"
-  token: string
   is_active: boolean
-  last_seen_at: string
+  created_at: string
+  user: Pick<User, "id" | "name" | "email">
 }
 
 export interface TicketMessage {
   id: number
+  ticket_id: number
+  from: "client" | "admin"
+  text: string
+  created_at: string
   sender: {
     id: number
     name: string
-    role: "user" | "admin"
+    email: string
   }
-  message: string
-  created_at: string
 }
 
 export interface Ticket {
   id: number
+  user_id: number
   subject: string
-  urgency: Urgency
   status: TicketStatus
+  urgency: Urgency
   is_escalated: boolean
+  escalated_at: string | null
+  assigned_admin_id: number | null
+  closed_at: string | null
+  last_update_at: string
   user: Pick<User, "id" | "name" | "email">
-  assignedAdmin?: Pick<User, "id" | "name" | "email">
+  assigned_admin: Pick<User, "id" | "name" | "email"> | null
   messages: TicketMessage[]
-  created_at: string
-  closed_at?: string
 }
 
 export interface SystemService {
+  id: number
   service_key: string
   service_name: string
   status: ServiceStatus
   is_active: boolean
+  sort_order: number
   updated_at: string
 }
 

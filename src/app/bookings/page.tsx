@@ -33,8 +33,8 @@ export default function BookingsPage() {
       { accessorKey: "id", header: "Booking ID" },
       { accessorFn: (row) => row.client.name, id: "client", header: "Client" },
       { accessorFn: (row) => row.salon.name, id: "salon", header: "Salon" },
-      { accessorKey: "date", header: "Date" },
-      { accessorFn: (row) => `${row.price} EUR`, id: "price", header: "Price" },
+      { accessorKey: "booking_date", header: "Date" },
+      { accessorFn: (row) => `${row.total_price} EUR`, id: "price", header: "Price" },
       { accessorKey: "status", header: "Status", cell: ({ row }) => <StatusBadge status={row.original.status} /> },
       {
         id: "actions",

@@ -8,7 +8,16 @@ import { StatsWidget } from "@/components/dashboard/StatsWidget"
 import { StatusBadge } from "@/components/dashboard/StatusBadge"
 import { DataTable } from "@/components/tables/DataTable"
 import { useBookings, useDashboardKpis, useDashboardTrends, useReviews, useTickets } from "@/lib/hooks/useAdminQueries"
-import type { Booking, Review, Ticket as TicketType } from "@/lib/types/admin"
+import type { Booking, SalonReview, BarberReview, Ticket as TicketType } from "@/lib/types/admin"
+
+// Helper function to determine review type and get display name
+function getReviewTarget(review: SalonReview | BarberReview): { type: string; name: string } {
+  if ("salon" in review) {
+    return { type: "Salon", name: review.salon.name }
+  } else {
+    return { type: "Barber", name: `Barber #${review.barber_id}` }
+  }
+}
 
 export default function DashboardPage() {
   const kpis = useDashboardKpis(30)
@@ -22,8 +31,8 @@ export default function DashboardPage() {
       { accessorKey: "id", header: "Booking ID" },
       { accessorFn: (row) => row.client.name, id: "client", header: "Client" },
       { accessorFn: (row) => row.salon.name, id: "salon", header: "Salon" },
-      { accessorKey: "date", header: "Date" },
-      { accessorFn: (row) => `${row.price} EUR`, id: "price", header: "Price" },
+      { accessorKey: "booking_date", header: "Date" },
+      { accessorFn: (row) => `${row.total_price} EUR`, id: "price", header: "Price" },
       {
         accessorKey: "status",
         header: "Status",
@@ -49,12 +58,15 @@ export default function DashboardPage() {
     return [...payload.salon_reviews, ...payload.barber_reviews].slice(0, 8)
   }, [recentReviews.data])
 
-  const reviewColumns = useMemo<ColumnDef<Review>[]>(
+  const reviewColumns = useMemo<ColumnDef<SalonReview | BarberReview>[]>(
     () => [
-      { accessorFn: (row) => row.user_name, id: "user", header: "User" },
+      { accessorFn: (row) => row.user.name, id: "user", header: "User" },
       { accessorKey: "rating", header: "Rating", cell: ({ row }) => `${row.original.rating}/5` },
-      { accessorFn: (row) => `${row.type}: ${row.target_name}`, id: "target", header: "Target" },
-      { accessorFn: (row) => (row.hidden ? "hidden" : "visible"), id: "status", header: "Status", cell: ({ row }) => <StatusBadge status={row.original.hidden ? "inactive" : "active"} /> },
+      { accessorFn: (row) => {
+        const target = getReviewTarget(row)
+        return `${target.type}: ${target.name}`
+      }, id: "target", header: "Target" },
+      { accessorFn: (row) => (row.is_hidden ? "hidden" : "visible"), id: "status", header: "Status", cell: ({ row }) => <StatusBadge status={row.original.is_hidden ? "inactive" : "active"} /> },
     ],
     []
   )

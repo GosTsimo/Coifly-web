@@ -7,7 +7,21 @@ import { DataTable } from "@/components/tables/DataTable"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { useModerateReview, useReviews } from "@/lib/hooks/useAdminQueries"
-import type { Review } from "@/lib/types/admin"
+import type { SalonReview, BarberReview } from "@/lib/types/admin"
+
+// Helper function to determine review type
+function getReviewType(review: SalonReview | BarberReview): "salon" | "barber" {
+  return "salon" in review ? "salon" : "barber"
+}
+
+// Helper function to get target name and type
+function getReviewTarget(review: SalonReview | BarberReview): { type: string; name: string } {
+  if ("salon" in review) {
+    return { type: "Salon", name: review.salon.name }
+  } else {
+    return { type: "Barber", name: `Barber #${review.barber_id}` }
+  }
+}
 
 export default function ReviewsPage() {
   const [type, setType] = useState<"all" | "salon" | "barber">("all")
@@ -20,24 +34,30 @@ export default function ReviewsPage() {
     return [...data.salon_reviews, ...data.barber_reviews]
   }, [data])
 
-  const columns = useMemo<ColumnDef<Review>[]>(
+  const columns = useMemo<ColumnDef<SalonReview | BarberReview>[]>(
     () => [
-      { accessorFn: (row) => row.user_name, id: "user", header: "User" },
+      { accessorFn: (row) => row.user.name, id: "user", header: "User" },
       { accessorKey: "rating", header: "Rating", cell: ({ row }) => `${row.original.rating}/5` },
-      { accessorFn: (row) => `${row.type}: ${row.target_name}`, id: "target", header: "Target" },
-      { accessorFn: (row) => (row.hidden ? "hidden" : "visible"), id: "status", header: "Status", cell: ({ row }) => <StatusBadge status={row.original.hidden ? "inactive" : "active"} /> },
+      { accessorFn: (row) => {
+        const target = getReviewTarget(row)
+        return `${target.type}: ${target.name}`
+      }, id: "target", header: "Target" },
+      { accessorFn: (row) => (row.is_hidden ? "hidden" : "visible"), id: "status", header: "Status", cell: ({ row }) => <StatusBadge status={row.original.is_hidden ? "inactive" : "active"} /> },
       {
         id: "actions",
         header: "Actions",
-        cell: ({ row }) => (
-          <ActionDropdown
-            actions={[
-              { label: "Hide", onClick: () => moderate.mutate({ type: row.original.type, reviewId: row.original.id, action: "hide" }) },
-              { label: "Unhide", onClick: () => moderate.mutate({ type: row.original.type, reviewId: row.original.id, action: "unhide" }) },
-              { label: "Delete", onClick: () => moderate.mutate({ type: row.original.type, reviewId: row.original.id, action: "delete" }), destructive: true },
-            ]}
-          />
-        ),
+        cell: ({ row }) => {
+          const reviewType = getReviewType(row.original)
+          return (
+            <ActionDropdown
+              actions={[
+                { label: "Hide", onClick: () => moderate.mutate({ type: reviewType, reviewId: row.original.id, action: "hide" }) },
+                { label: "Unhide", onClick: () => moderate.mutate({ type: reviewType, reviewId: row.original.id, action: "unhide" }) },
+                { label: "Delete", onClick: () => moderate.mutate({ type: reviewType, reviewId: row.original.id, action: "delete" }), destructive: true },
+              ]}
+            />
+          )
+        },
       },
     ],
     [moderate]

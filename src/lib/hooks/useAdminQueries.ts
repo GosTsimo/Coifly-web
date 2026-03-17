@@ -112,8 +112,8 @@ export function useBookings(params: {
 export function useUpdateBookingStatus() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (payload: { bookingId: string; status: BookingStatus; reason?: string }) =>
-      adminApi.updateBookingStatus(payload.bookingId, { status: payload.status, reason: payload.reason }),
+    mutationFn: (payload: { bookingId: number; status: BookingStatus; reason?: string }) =>
+      adminApi.updateBookingStatus(String(payload.bookingId), { status: payload.status, reason: payload.reason }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["admin", "bookings"] }),
   })
 }

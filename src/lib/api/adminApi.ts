@@ -2,6 +2,7 @@ import type {
   AccountStatus,
   ApiEnvelope,
   AuditLog,
+  BarberReview,
   Barber,
   Booking,
   BookingStatus,
@@ -9,8 +10,9 @@ import type {
   Device,
   ModerationStatus,
   PaginatedResponse,
-  Review,
+  Role,
   Salon,
+  SalonReview,
   ServiceStatus,
   SystemService,
   Ticket,
@@ -75,7 +77,7 @@ export const adminApi = {
   },
 
   async assignUserRole(userId: number, payload: { role: UserRole; replace?: boolean }) {
-    return apiFetch<{ user_id: number; roles: UserRole[] }>(`/admin/users/${userId}/roles`, {
+    return apiFetch<{ user_id: number; roles: Role[] }>(`/admin/users/${userId}/role`, {
       method: "POST",
       body: JSON.stringify(payload),
     })
@@ -90,8 +92,8 @@ export const adminApi = {
   },
 
   async moderateBarber(barberId: number, payload: { status: ModerationStatus; reason?: string }) {
-    return apiFetch<Barber>(`/admin/barbers/${barberId}/moderation`, {
-      method: "PUT",
+    return apiFetch<Barber>(`/admin/barbers/${barberId}/moderate`, {
+      method: "PATCH",
       body: JSON.stringify(payload),
     })
   },
@@ -101,8 +103,8 @@ export const adminApi = {
   },
 
   async moderateSalon(salonId: number, payload: { status: ModerationStatus; reason?: string }) {
-    return apiFetch<Salon>(`/admin/salons/${salonId}/moderation`, {
-      method: "PUT",
+    return apiFetch<Salon>(`/admin/salons/${salonId}/moderate`, {
+      method: "PATCH",
       body: JSON.stringify(payload),
     })
   },
@@ -126,7 +128,7 @@ export const adminApi = {
   },
 
   async getDashboardKpis(days = 30) {
-    return apiFetch<DashboardKpis>(`/admin/dashboard/kpis${buildQuery({ days })}`)
+    return apiFetch<DashboardKpis>(`/admin/kpis${buildQuery({ days })}`)
   },
 
   async getTrends(): Promise<ApiEnvelope<TrendPoint[]>> {
@@ -135,7 +137,7 @@ export const adminApi = {
   },
 
   async getReviews(params: { type?: "all" | "salon" | "barber"; include_hidden?: boolean }) {
-    return apiFetch<{ salon_reviews: Review[]; barber_reviews: Review[] }>(
+    return apiFetch<{ salon_reviews: SalonReview[]; barber_reviews: BarberReview[] }>(
       `/admin/reviews${buildQuery(params)}`
     )
   },
@@ -156,7 +158,7 @@ export const adminApi = {
   },
 
   async deleteInvalidTokens() {
-    return apiFetch<{ deleted_count: number }>(`/admin/devices/invalid-tokens`, {
+    return apiFetch<{ deleted_count: number }>(`/admin/devices/cleanup`, {
       method: "DELETE",
     })
   },
@@ -198,11 +200,11 @@ export const adminApi = {
   },
 
   async getSystemStatus() {
-    return apiFetch<SystemService[]>(`/admin/system-status`)
+    return apiFetch<SystemService[]>(`/admin/system/statuses`)
   },
 
   async updateSystemService(serviceKey: string, payload: { status: ServiceStatus; is_active?: boolean }) {
-    return apiFetch<SystemService>(`/admin/system-status/${encodeURIComponent(serviceKey)}`, {
+    return apiFetch<SystemService>(`/admin/system/statuses/${encodeURIComponent(serviceKey)}`, {
       method: "PATCH",
       body: JSON.stringify(payload),
     })
