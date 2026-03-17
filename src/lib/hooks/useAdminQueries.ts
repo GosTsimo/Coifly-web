@@ -41,7 +41,12 @@ export function useDashboardTrends(days = 30) {
 export function useUsers(params: { search?: string; role?: string; status?: string; per_page?: number; page?: number }) {
   return useQuery({
     queryKey: adminKeys.users(params),
-    queryFn: async () => (await adminApi.getUsers(params)).data,
+    queryFn: async () => {
+      const response = await adminApi.getUsers(params)
+      console.log("[Users] Raw API response /admin/users:", response)
+      console.log("[Users] First row sample:", response.data?.data?.[0] ?? null)
+      return response.data
+    },
   })
 }
 
