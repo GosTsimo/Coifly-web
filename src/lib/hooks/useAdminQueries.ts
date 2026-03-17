@@ -173,6 +173,10 @@ export function useDeleteInvalidTokens() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: () => adminApi.deleteInvalidTokens(),
+    onError: (error) => {
+      console.error("[Devices] Cleanup mutation error object:", error)
+      console.error("[Devices] Cleanup mutation error message:", error instanceof Error ? error.message : "Unknown error")
+    },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["admin", "devices"] }),
   })
 }

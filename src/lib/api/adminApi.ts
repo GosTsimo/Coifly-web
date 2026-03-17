@@ -210,9 +210,41 @@ export const adminApi = {
   },
 
   async deleteInvalidTokens() {
-    return apiFetch<{ deleted_count: number }>(`/admin/devices/cleanup`, {
+    const path = `/admin/devices/cleanup`
+    const url = `${API_BASE}${path}`
+
+    console.log("[Devices] Cleanup request:", { url, method: "DELETE" })
+
+    const res = await fetch(url, {
       method: "DELETE",
+      headers: authHeaders(),
     })
+
+    const raw = await res.text()
+    console.log("[Devices] Cleanup response status:", { status: res.status, statusText: res.statusText })
+    console.log("[Devices] Cleanup raw response text:", raw)
+
+    if (res.status === 401) {
+      localStorage.removeItem(TOKEN_KEY)
+      localStorage.removeItem("coifly_user")
+      if (window.location.pathname !== "/login") {
+        window.location.href = "/login"
+      }
+      throw new Error("Unauthenticated - token invalid or expired")
+    }
+
+    if (!res.ok) {
+      throw new Error(`Devices cleanup failed: HTTP ${res.status} ${res.statusText} - ${raw}`)
+    }
+
+    try {
+      const parsed = JSON.parse(raw) as ApiEnvelope<{ deleted_count: number }>
+      console.log("[Devices] Cleanup parsed response:", parsed)
+      return parsed
+    } catch (error) {
+      console.error("[Devices] Cleanup JSON parse error:", error)
+      throw new Error(`Devices cleanup parse error: ${raw}`)
+    }
   },
 
   async getTickets(params: {
