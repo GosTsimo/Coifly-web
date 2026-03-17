@@ -173,20 +173,15 @@ export default function DashboardPage() {
     { label: "Failed Jobs", value: String(kpis.data.failed_jobs ?? 0), icon: Store },
   ]
 
-  const chartData = useMemo(
-    () =>
-      trendPoints.map((point) => ({
-        ...point,
-        shortDate: formatTrendDate(point.date),
-      })),
-    [trendPoints]
-  )
+  const chartData = trendPoints.map((point) => ({
+    ...point,
+    shortDate: formatTrendDate(point.date),
+  }))
 
-  const avgCancellationRate = useMemo(() => {
-    if (trendPoints.length === 0) return 0
-    const sum = trendPoints.reduce((acc, point) => acc + point.cancellationRate, 0)
-    return Number((sum / trendPoints.length).toFixed(2))
-  }, [trendPoints])
+  const avgCancellationRate =
+    trendPoints.length === 0
+      ? 0
+      : Number((trendPoints.reduce((acc, point) => acc + point.cancellationRate, 0) / trendPoints.length).toFixed(2))
 
   return (
     <div className="space-y-6">
