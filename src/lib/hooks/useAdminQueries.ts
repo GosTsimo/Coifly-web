@@ -92,7 +92,12 @@ export function useModerateBarber() {
 export function useSalons(page = 1, perPage = 10) {
   return useQuery({
     queryKey: adminKeys.salons(page, perPage),
-    queryFn: async () => (await adminApi.getSalons(page, perPage)).data,
+    queryFn: async () => {
+      const response = await adminApi.getSalons(page, perPage)
+      console.log("[Salons] Raw API response /admin/salons:", response)
+      console.log("[Salons] First row sample:", response.data?.data?.[0] ?? null)
+      return response.data
+    },
   })
 }
 
