@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from "react"
 import type { ColumnDef } from "@tanstack/react-table"
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis, AreaChart, Area } from "recharts"
-import { AlertTriangle, BadgeDollarSign, CalendarDays, Scissors, Store, Ticket, Users, Activity } from "lucide-react"
+import { AlertTriangle, BadgeDollarSign, CalendarDays, Store, Ticket, Users, Activity } from "lucide-react"
 import { ChartWidget } from "@/components/dashboard/ChartWidget"
 import { ErrorState, LoadingState } from "@/components/dashboard/QueryState"
 import { StatsWidget } from "@/components/dashboard/StatsWidget"
@@ -29,14 +29,9 @@ export default function DashboardPage() {
   useEffect(() => {
     if (!kpis.data) return
     const kpiData = kpis.data
-    const missingWidgetFields = [
-      "total_users",
-      "active_barbers",
-      "active_salons",
-      "bookings_today",
-      "revenue_today",
-      "system_status",
-    ].filter((field) => !(field in kpiData))
+    const missingWidgetFields = ["bookings_total", "bookings_completed", "cancellation_rate", "no_show_rate"].filter(
+      (field) => !(field in kpiData)
+    )
 
     console.group("[Dashboard] KPI payload debug")
     console.log("raw kpis data:", kpiData)
@@ -45,14 +40,16 @@ export default function DashboardPage() {
       console.warn("[Dashboard] Missing KPI fields for widgets:", missingWidgetFields)
     }
     console.log("mapped widget values:", {
-      total_users: kpiData.total_users,
-      active_barbers: kpiData.active_barbers,
-      active_salons: kpiData.active_salons,
-      bookings_today: kpiData.bookings_today,
-      revenue_today: kpiData.revenue_today,
+      bookings_total: kpiData.bookings_total,
+      bookings_completed: kpiData.bookings_completed,
+      bookings_cancelled: kpiData.bookings_cancelled,
+      bookings_no_show: kpiData.bookings_no_show,
+      cancellation_rate: kpiData.cancellation_rate,
+      no_show_rate: kpiData.no_show_rate,
+      revenue_completed: kpiData.revenue_completed,
       active_tickets: kpiData.active_tickets,
+      queued_jobs: kpiData.queued_jobs,
       failed_jobs: kpiData.failed_jobs,
-      system_status: kpiData.system_status,
     })
     console.groupEnd()
   }, [kpis.data])
@@ -113,16 +110,40 @@ export default function DashboardPage() {
     return <ErrorState message={errorMsg} />
   }
 
-  const displayKpis = {
-    total_users: kpis.data.total_users ?? 0,
-    active_barbers: kpis.data.active_barbers ?? 0,
-    active_salons: kpis.data.active_salons ?? 0,
-    bookings_today: kpis.data.bookings_today ?? kpis.data.bookings_total ?? 0,
-    revenue_today: kpis.data.revenue_today ?? kpis.data.revenue_completed ?? 0,
-    active_tickets: kpis.data.active_tickets ?? 0,
-    failed_jobs: kpis.data.failed_jobs ?? 0,
-    system_status: kpis.data.system_status ?? "operational",
-  }
+  const completionRate =
+    kpis.data.bookings_total > 0
+      ? Number(((kpis.data.bookings_completed / kpis.data.bookings_total) * 100).toFixed(2))
+      : 0
+
+  const statsCards = [
+    { label: "Bookings Total", value: String(kpis.data.bookings_total), icon: CalendarDays },
+    {
+      label: "Bookings Completed",
+      value: String(kpis.data.bookings_completed),
+      icon: Activity,
+      delta: completionRate,
+    },
+    {
+      label: "Bookings Cancelled",
+      value: String(kpis.data.bookings_cancelled),
+      icon: AlertTriangle,
+      delta: Number(kpis.data.cancellation_rate ?? 0),
+    },
+    {
+      label: "Bookings No Show",
+      value: String(kpis.data.bookings_no_show),
+      icon: Ticket,
+      delta: Number(kpis.data.no_show_rate ?? 0),
+    },
+    {
+      label: "Revenue Completed",
+      value: `${kpis.data.revenue_completed ?? 0} EUR`,
+      icon: BadgeDollarSign,
+    },
+    { label: "Active Tickets", value: String(kpis.data.active_tickets ?? 0), icon: Ticket },
+    { label: "Queued Jobs", value: String(kpis.data.queued_jobs ?? 0), icon: Users },
+    { label: "Failed Jobs", value: String(kpis.data.failed_jobs ?? 0), icon: Store },
+  ]
 
   return (
     <div className="space-y-6">
@@ -132,14 +153,9 @@ export default function DashboardPage() {
       </div>
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatsWidget label="Total Users" value={String(displayKpis.total_users)} icon={Users} delta={6.2} />
-        <StatsWidget label="Active Barbers" value={String(displayKpis.active_barbers)} icon={Scissors} delta={2.8} />
-        <StatsWidget label="Active Salons" value={String(displayKpis.active_salons)} icon={Store} delta={4.1} />
-        <StatsWidget label="Bookings Today" value={String(displayKpis.bookings_today)} icon={CalendarDays} delta={3.3} />
-        <StatsWidget label="Revenue Today" value={`${displayKpis.revenue_today} EUR`} icon={BadgeDollarSign} delta={5.4} />
-        <StatsWidget label="Open Support Tickets" value={String(displayKpis.active_tickets)} icon={Ticket} delta={-1.4} />
-        <StatsWidget label="Failed Jobs" value={String(displayKpis.failed_jobs)} icon={AlertTriangle} delta={-7.1} />
-        <StatsWidget label="System Status" value={displayKpis.system_status} icon={Activity} />
+        {statsCards.map((card) => (
+          <StatsWidget key={card.label} label={card.label} value={card.value} icon={card.icon} delta={card.delta} />
+        ))}
       </section>
 
       <section className="grid gap-4 xl:grid-cols-2">
