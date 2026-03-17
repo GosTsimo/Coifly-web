@@ -26,7 +26,10 @@ const statusMap: Record<string, string> = {
   high: "bg-orange-600 text-white",
 }
 
-export function StatusBadge({ status }: { status: AnyStatus | string }) {
+export function StatusBadge({ status }: { status: AnyStatus | string | undefined }) {
+  if (!status) {
+    return <Badge className="bg-muted text-muted-foreground">Unknown</Badge>
+  }
   const className = statusMap[status] ?? "bg-muted text-muted-foreground"
-  return <Badge className={className}>{status.replace("_", " ")}</Badge>
+  return <Badge className={className}>{String(status).replace("_", " ")}</Badge>
 }
