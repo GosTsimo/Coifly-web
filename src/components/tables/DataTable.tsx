@@ -45,12 +45,13 @@ export function DataTable<TData, TValue>({
   return (
     <div className="space-y-3">
       <div className="rounded-lg border">
-        <Table>
+        <div className="overflow-x-auto">
+          <Table className="min-w-[720px]">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
+                  <TableHead key={header.id} className="whitespace-nowrap">
                     {header.isPlaceholder
                       ? null
                       : flexRender(header.column.columnDef.header, header.getContext())}
@@ -70,7 +71,7 @@ export function DataTable<TData, TValue>({
               table.getRowModel().rows.map((row) => (
                 <TableRow key={row.id}>
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell key={cell.id} className="whitespace-nowrap align-middle">
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
@@ -84,14 +85,15 @@ export function DataTable<TData, TValue>({
               </TableRow>
             )}
           </TableBody>
-        </Table>
+          </Table>
+        </div>
       </div>
 
-      <div className="flex items-center justify-between text-sm">
+      <div className="flex flex-col gap-2 text-sm sm:flex-row sm:items-center sm:justify-between">
         <p className="text-muted-foreground">
           Page {page} of {lastPage} ({total} records)
         </p>
-        <div className="flex gap-2">
+        <div className="flex gap-2 self-end sm:self-auto">
           <Button variant="outline" size="sm" onClick={() => onPageChange(page - 1)} disabled={page <= 1}>
             <ChevronLeft className="mr-1 h-4 w-4" /> Prev
           </Button>
