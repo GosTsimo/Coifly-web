@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Eye, EyeOff, Lock, Mail, Phone, User } from 'lucide-react';
@@ -7,7 +7,6 @@ import authService, { isAuthenticated } from '../services/authService';
 type Mode = 'login' | 'register';
 
 type NavState = {
-  redirectTo?: string;
   bookingState?: { salonId?: number; salonName?: string };
 };
 
@@ -18,11 +17,16 @@ function flattenErrors(errors?: Record<string, string[]>) {
   return Object.values(errors).flat();
 }
 
+function isAdminUser(user?: { role?: string | null; roles?: string[] }) {
+  const primaryRole = user?.role?.toLowerCase();
+  const roles = (user?.roles || []).map((role) => role.toLowerCase());
+  return primaryRole === 'admin' || roles.includes('admin');
+}
+
 export default function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const navState = useMemo(() => (location.state || {}) as NavState, [location.state]);
-  const redirectTo = navState.redirectTo || '/';
 
   const [mode, setMode] = useState<Mode>('login');
   const [loading, setLoading] = useState(false);
@@ -37,9 +41,22 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
-  if (isAuthenticated()) {
-    navigate(redirectTo, { state: navState.bookingState, replace: true });
-  }
+  const navigateAfterAuth = (user?: { role?: string | null; roles?: string[] }) => {
+    if (isAdminUser(user)) {
+      navigate('/admin/dashboard', { replace: true });
+      return;
+    }
+    navigate('/client/home', { state: navState.bookingState, replace: true });
+  };
+
+  useEffect(() => {
+    if (!isAuthenticated()) {
+      return;
+    }
+    const rawUser = localStorage.getItem('coifly_user');
+    const storedUser = rawUser ? (JSON.parse(rawUser) as { role?: string | null; roles?: string[] }) : undefined;
+    navigateAfterAuth(storedUser);
+  }, [navigate]);
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -59,7 +76,7 @@ export default function LoginPage() {
         setLoading(false);
         return;
       }
-      navigate(redirectTo, { state: navState.bookingState, replace: true });
+      navigateAfterAuth(result.data?.user);
       return;
     }
 
@@ -77,7 +94,7 @@ export default function LoginPage() {
       return;
     }
 
-    navigate(redirectTo, { state: navState.bookingState, replace: true });
+    navigateAfterAuth(registerResult.data?.user);
   }
 
   return (

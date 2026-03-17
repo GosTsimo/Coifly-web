@@ -14,6 +14,8 @@ export type AuthUser = {
   name: string;
   email?: string | null;
   phone?: string | null;
+  role?: string | null;
+  roles?: string[];
 };
 
 export type LoginData = {
