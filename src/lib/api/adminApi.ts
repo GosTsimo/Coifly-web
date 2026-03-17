@@ -23,7 +23,7 @@ import type {
   UserRole,
 } from "@/lib/types/admin"
 
-const API_BASE = import.meta.env.VITE_API_BASE || "/api"
+const API_BASE = "https://beautybooking-f05a760bafaf.herokuapp.com/api"
 const TOKEN_KEY = "coifly_token"
 
 function getToken(): string | null {

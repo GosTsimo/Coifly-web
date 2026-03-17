@@ -35,7 +35,7 @@ type FavoriteSalon = {
   salon_url?: string;
 };
 
-const API_BASE = import.meta.env.VITE_API_BASE || '/api';
+const API_BASE = 'https://beautybooking-f05a760bafaf.herokuapp.com/api';
 
 const mockUser: UserProfile = {
   id: 0,

@@ -1,6 +1,6 @@
 import { getStoredToken } from './authService';
 
-const API_BASE = import.meta.env.VITE_API_BASE || '/api';
+const API_BASE = 'https://beautybooking-f05a760bafaf.herokuapp.com/api';
 const FAVORITES_STORAGE_KEY = 'salon_favorite_ids';
 
 export type SearchSalonItem = {
