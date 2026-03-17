@@ -72,7 +72,10 @@ export default function DashboardPage() {
   )
 
   if (kpis.isLoading || trends.isLoading) return <LoadingState />
-  if (kpis.isError || trends.isError || !kpis.data || !trends.data) return <ErrorState message="Failed to load dashboard data." />
+  if (kpis.isError || trends.isError || !kpis.data || !trends.data) {
+    const errorMsg = kpis.error instanceof Error ? kpis.error.message : trends.error instanceof Error ? trends.error.message : "Failed to load dashboard data."
+    return <ErrorState message={errorMsg} />
+  }
 
   return (
     <div className="space-y-6">

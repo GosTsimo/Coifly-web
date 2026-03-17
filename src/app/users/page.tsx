@@ -82,7 +82,9 @@ export default function UsersPage() {
         </Select>
       </div>
 
-      {usersQuery.isError ? <ErrorState message="Unable to fetch users" /> : null}
+      {usersQuery.isError ? (
+        <ErrorState message={usersQuery.error instanceof Error ? usersQuery.error.message : "Unable to fetch users"} />
+      ) : null}
       <DataTable
         columns={columns}
         data={usersQuery.data?.data ?? []}
