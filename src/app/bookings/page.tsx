@@ -34,7 +34,7 @@ export default function BookingsPage() {
       { accessorFn: (row) => row.client?.name ?? `Client #${row.client_id ?? "N/A"}`, id: "client", header: "Client" },
       { accessorFn: (row) => row.salon?.name ?? `Salon #${row.salon_id ?? "N/A"}`, id: "salon", header: "Salon" },
       { accessorKey: "booking_date", header: "Date" },
-      { accessorFn: (row) => `${row.total_price} EUR`, id: "price", header: "Price" },
+      { accessorFn: (row) => `${row.total_price} MAD`, id: "price", header: "Price" },
       { accessorKey: "status", header: "Status", cell: ({ row }) => <StatusBadge status={row.original.status} /> },
       {
         id: "actions",

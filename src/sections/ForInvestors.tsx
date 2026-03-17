@@ -339,7 +339,7 @@ export default function ForInvestors() {
                       <div className="text-text-muted text-xs">Commission par réservation</div>
                     </div>
                     <div className="bg-dark-surface rounded-xl p-4">
-                      <div className="text-gold font-bold text-xl mb-1">99€</div>
+                      <div className="text-gold font-bold text-xl mb-1">99 MAD</div>
                       <div className="text-text-muted text-xs">Abonnement mensuel Pro</div>
                     </div>
                   </div>
