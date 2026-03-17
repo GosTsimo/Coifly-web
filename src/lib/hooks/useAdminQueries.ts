@@ -71,7 +71,12 @@ export function useAssignUserRole() {
 export function useBarbers(page = 1, perPage = 10) {
   return useQuery({
     queryKey: adminKeys.barbers(page, perPage),
-    queryFn: async () => (await adminApi.getBarbers(page, perPage)).data,
+    queryFn: async () => {
+      const response = await adminApi.getBarbers(page, perPage)
+      console.log("[Barbers] Raw API response /admin/barbers:", response)
+      console.log("[Barbers] First row sample:", response.data?.data?.[0] ?? null)
+      return response.data
+    },
   })
 }
 
