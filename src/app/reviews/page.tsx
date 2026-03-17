@@ -31,7 +31,9 @@ export default function ReviewsPage() {
 
   const rows = useMemo(() => {
     if (!data) return []
-    return [...data.salon_reviews, ...data.barber_reviews]
+    const salonReviews = data.salon_reviews ?? []
+    const barberReviews = data.barber_reviews ?? []
+    return [...salonReviews, ...barberReviews]
   }, [data])
 
   const columns = useMemo<ColumnDef<SalonReview | BarberReview>[]>(

@@ -81,7 +81,9 @@ export default function DashboardPage() {
   const reviewRows = useMemo(() => {
     const payload = recentReviews.data
     if (!payload) return []
-    return [...payload.salon_reviews, ...payload.barber_reviews].slice(0, 8)
+    const salonReviews = payload.salon_reviews ?? []
+    const barberReviews = payload.barber_reviews ?? []
+    return [...salonReviews, ...barberReviews].slice(0, 8)
   }, [recentReviews.data])
 
   const reviewColumns = useMemo<ColumnDef<SalonReview | BarberReview>[]>(
