@@ -12,7 +12,7 @@ import type {
 
 export const adminKeys = {
   kpis: (days: number) => ["admin", "kpis", days] as const,
-  trends: ["admin", "trends"] as const,
+  trends: (days: number) => ["admin", "trends", days] as const,
   users: (params: Record<string, unknown>) => ["admin", "users", params] as const,
   barbers: (page: number, perPage: number) => ["admin", "barbers", page, perPage] as const,
   salons: (page: number, perPage: number) => ["admin", "salons", page, perPage] as const,
@@ -31,10 +31,10 @@ export function useDashboardKpis(days = 30) {
   })
 }
 
-export function useDashboardTrends() {
+export function useDashboardTrends(days = 30) {
   return useQuery({
-    queryKey: adminKeys.trends,
-    queryFn: async () => (await adminApi.getTrends()).data,
+    queryKey: adminKeys.trends(days),
+    queryFn: async () => (await adminApi.getTrends(days)).data,
   })
 }
 

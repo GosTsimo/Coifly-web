@@ -188,9 +188,10 @@ export const adminApi = {
     }
   },
 
-  async getTrends(): Promise<ApiEnvelope<TrendPoint[]>> {
-    // No dedicated trends endpoint on the API — return empty so charts degrade gracefully
-    return { success: true, data: [] }
+  async getTrends(days = 30): Promise<ApiEnvelope<TrendPoint[]>> {
+    const response = await apiFetch<TrendPoint[]>(`/admin/dashboard/trends${buildQuery({ days })}`)
+    console.log("[AdminAPI] Trends route /admin/dashboard/trends response:", response)
+    return response
   },
 
   async getReviews(params: { type?: "all" | "salon" | "barber"; include_hidden?: boolean }) {
