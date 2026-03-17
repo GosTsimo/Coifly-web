@@ -189,9 +189,31 @@ export const adminApi = {
   },
 
   async getTrends(days = 30): Promise<ApiEnvelope<TrendPoint[]>> {
-    const response = await apiFetch<TrendPoint[]>(`/admin/dashboard/trends${buildQuery({ days })}`)
-    console.log("[AdminAPI] Trends route /admin/dashboard/trends response:", response)
-    return response
+    const path = `/admin/dashboard/trends${buildQuery({ days })}`
+    const res = await fetch(`${API_BASE}${path}`, {
+      method: "GET",
+      headers: authHeaders(),
+    })
+
+    const raw = await res.text()
+    console.log("[AdminAPI] Trends raw response text:", raw)
+
+    if (res.status === 401) {
+      localStorage.removeItem(TOKEN_KEY)
+      localStorage.removeItem("coifly_user")
+      if (window.location.pathname !== "/login") {
+        window.location.href = "/login"
+      }
+      throw new Error("Unauthenticated - token invalid or expired")
+    }
+
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}: ${res.statusText}`)
+    }
+
+    const parsed = JSON.parse(raw) as ApiEnvelope<TrendPoint[]>
+    console.log("[AdminAPI] Trends parsed response:", parsed)
+    return parsed
   },
 
   async getReviews(params: { type?: "all" | "salon" | "barber"; include_hidden?: boolean }) {
