@@ -17,10 +17,12 @@ export default function BarbersPage() {
   const columns = useMemo<ColumnDef<Barber>[]>(
     () => [
       { accessorKey: "id", header: "ID" },
-      { accessorKey: "name", header: "Name" },
-      { accessorKey: "email", header: "Email" },
-      { accessorKey: "phone", header: "Phone" },
-      { accessorKey: "city", header: "City" },
+      { accessorFn: (row) => row.user?.name ?? `User #${row.user_id}`, id: "name", header: "Name" },
+      { accessorFn: (row) => row.user?.email ?? "-", id: "email", header: "Email" },
+      { accessorFn: (row) => row.user?.phone ?? "-", id: "phone", header: "Phone" },
+      { accessorFn: (row) => row.salon?.name ?? `Salon #${row.salon_id}`, id: "salon", header: "Salon" },
+      { accessorFn: (row) => row.experience ?? 0, id: "experience", header: "Exp" },
+      { accessorFn: (row) => row.rating_average ?? 0, id: "rating", header: "Rating" },
       { accessorKey: "status", header: "Status", cell: ({ row }) => <StatusBadge status={row.original.status} /> },
       {
         id: "actions",

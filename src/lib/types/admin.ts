@@ -62,7 +62,24 @@ export interface Barber {
   salon_id: number
   status: ModerationStatus
   is_active: boolean
-  bio: string
+  bio: string | null
+  experience?: number | null
+  rating_average?: number
+  reviews_count?: number
+  photo_url?: string | null
+  buffer_minutes?: number
+  specialties?: string[]
+  user?: {
+    id: number
+    name: string
+    email: string
+    phone: string
+    photo_url: string | null
+  }
+  salon?: {
+    id: number
+    name: string
+  }
   created_at: string
   updated_at: string
 }
