@@ -12,6 +12,21 @@ import type { User } from "@/lib/types/admin"
 
 const PAGE_SIZE = 10
 
+function formatUserRoles(user: User) {
+  if (!Array.isArray(user.roles) || user.roles.length === 0) return "No role"
+  return user.roles.map((role) => role.display_name || role.name).join(", ")
+}
+
+function resolveUserStatus(user: User) {
+  const accountStatus = (user as User & { account_status?: string }).account_status
+  if (accountStatus) return accountStatus
+
+  const extended = user as User & { suspended_at?: string | null; banned_at?: string | null; deleted_at?: string | null }
+  if (extended.banned_at || extended.deleted_at) return "banned"
+  if (extended.suspended_at) return "suspended"
+  return "active"
+}
+
 export default function UsersPage() {
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState("")
@@ -35,8 +50,8 @@ export default function UsersPage() {
       { accessorKey: "name", header: "Name" },
       { accessorKey: "email", header: "Email" },
       { accessorKey: "phone", header: "Phone" },
-      { accessorFn: (row) => row.roles.join(", "), id: "role", header: "Role" },
-      { accessorKey: "account_status", header: "Status", cell: ({ row }) => <StatusBadge status={row.original.account_status} /> },
+      { accessorFn: (row) => formatUserRoles(row), id: "role", header: "Role" },
+      { accessorFn: (row) => resolveUserStatus(row), id: "status", header: "Status", cell: ({ row }) => <StatusBadge status={resolveUserStatus(row.original)} /> },
       {
         id: "actions",
         header: "Actions",
