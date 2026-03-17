@@ -40,20 +40,58 @@ function authHeaders(): HeadersInit {
 }
 
 async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<ApiEnvelope<T>> {
-  const res = await fetch(`${API_BASE}${path}`, {
-    ...options,
-    headers: { ...authHeaders(), ...(options.headers ?? {}) },
+  const token = getToken()
+  
+  // Log the request for debugging
+  console.debug(`[API] ${options.method || 'GET'} ${API_BASE}${path}`, {
+    hasToken: !!token,
+    tokenPrefix: token ? token.substring(0, 20) + '...' : 'none',
   })
 
-  if (res.status === 401) {
-    localStorage.removeItem(TOKEN_KEY)
-    localStorage.removeItem("coifly_user")
-    window.location.href = "/login"
-    return { success: false, message: "Unauthenticated" }
-  }
+  try {
+    const res = await fetch(`${API_BASE}${path}`, {
+      ...options,
+      headers: { ...authHeaders(), ...(options.headers ?? {}) },
+    })
 
-  const json = await res.json().catch(() => ({ success: false, message: "Invalid JSON response" }))
-  return json as ApiEnvelope<T>
+    // Log response status
+    console.debug(`[API] Response: ${res.status} ${res.statusText}`)
+
+    // Handle 401 Unauthenticated
+    if (res.status === 401) {
+      console.warn('[API] Received 401 - clearing auth and redirecting')
+      localStorage.removeItem(TOKEN_KEY)
+      localStorage.removeItem('coifly_user')
+      
+      // Only redirect if not already on login page
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login'
+      }
+      throw new Error('Unauthenticated - token invalid or expired')
+    }
+
+    // Handle other HTTP errors
+    if (!res.ok) {
+      let errorData: any
+      try {
+        errorData = await res.json()
+      } catch {
+        errorData = { message: `HTTP ${res.status}: ${res.statusText}` }
+      }
+      
+      const errorMsg = errorData?.message || `HTTP ${res.status}: ${res.statusText}`
+      console.error(`[API] Error: ${errorMsg}`, errorData)
+      throw new Error(errorMsg)
+    }
+
+    const json = await res.json()
+    console.debug(`[API] Success`, { success: json.success })
+    return json as ApiEnvelope<T>
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unknown error'
+    console.error(`[API] Exception on ${path}:`, message, error)
+    throw error
+  }
 }
 
 function buildQuery(params: Record<string, string | number | boolean | undefined | null>): string {
