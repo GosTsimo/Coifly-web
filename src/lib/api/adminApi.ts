@@ -168,11 +168,21 @@ export const adminApi = {
   async getDashboardKpis(days = 30) {
     const query = buildQuery({ days })
     try {
-      return await apiFetch<DashboardKpis>(`/admin/kpis${query}`)
+      const response = await apiFetch<DashboardKpis>(`/admin/kpis${query}`)
+      console.log("[AdminAPI] KPI primary route /admin/kpis response:", response)
+      if (response?.data) {
+        console.log("[AdminAPI] KPI primary route data keys:", Object.keys(response.data))
+      }
+      return response
     } catch (error) {
       const msg = error instanceof Error ? error.message : ""
       if (msg.toLowerCase().includes("could not be found") || msg.includes("404")) {
-        return apiFetch<DashboardKpis>(`/admin/dashboard/kpis${query}`)
+        const fallbackResponse = await apiFetch<DashboardKpis>(`/admin/dashboard/kpis${query}`)
+        console.log("[AdminAPI] KPI fallback route /admin/dashboard/kpis response:", fallbackResponse)
+        if (fallbackResponse?.data) {
+          console.log("[AdminAPI] KPI fallback route data keys:", Object.keys(fallbackResponse.data))
+        }
+        return fallbackResponse
       }
       throw error
     }

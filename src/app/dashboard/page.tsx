@@ -1,4 +1,4 @@
-import { useMemo } from "react"
+import { useEffect, useMemo } from "react"
 import type { ColumnDef } from "@tanstack/react-table"
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis, AreaChart, Area } from "recharts"
 import { AlertTriangle, BadgeDollarSign, CalendarDays, Scissors, Store, Ticket, Users, Activity } from "lucide-react"
@@ -25,6 +25,29 @@ export default function DashboardPage() {
   const recentBookings = useBookings({ per_page: 6, page: 1 })
   const recentTickets = useTickets({ per_page: 6, page: 1 })
   const recentReviews = useReviews("all", false)
+
+  useEffect(() => {
+    if (!kpis.data) return
+    console.group("[Dashboard] KPI payload debug")
+    console.log("raw kpis data:", kpis.data)
+    console.log("kpi keys:", Object.keys(kpis.data))
+    console.log("mapped widget values:", {
+      total_users: kpis.data.total_users,
+      active_barbers: kpis.data.active_barbers,
+      active_salons: kpis.data.active_salons,
+      bookings_today: kpis.data.bookings_today,
+      revenue_today: kpis.data.revenue_today,
+      active_tickets: kpis.data.active_tickets,
+      failed_jobs: kpis.data.failed_jobs,
+      system_status: kpis.data.system_status,
+    })
+    console.groupEnd()
+  }, [kpis.data])
+
+  useEffect(() => {
+    if (!trends.data) return
+    console.log("[Dashboard] trends payload:", trends.data)
+  }, [trends.data])
 
   const bookingColumns = useMemo<ColumnDef<Booking>[]>(
     () => [
