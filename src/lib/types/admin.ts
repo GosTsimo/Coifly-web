@@ -117,12 +117,12 @@ export interface DashboardKpis {
   active_tickets: number
   queued_jobs: number
   failed_jobs: number
-  total_users: number
-  active_barbers: number
-  active_salons: number
-  bookings_today: number
-  revenue_today: number
-  system_status: ServiceStatus
+  total_users?: number
+  active_barbers?: number
+  active_salons?: number
+  bookings_today?: number
+  revenue_today?: number
+  system_status?: ServiceStatus
 }
 
 export interface SalonReview {

@@ -28,18 +28,31 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (!kpis.data) return
+    const kpiData = kpis.data
+    const missingWidgetFields = [
+      "total_users",
+      "active_barbers",
+      "active_salons",
+      "bookings_today",
+      "revenue_today",
+      "system_status",
+    ].filter((field) => !(field in kpiData))
+
     console.group("[Dashboard] KPI payload debug")
-    console.log("raw kpis data:", kpis.data)
-    console.log("kpi keys:", Object.keys(kpis.data))
+    console.log("raw kpis data:", kpiData)
+    console.log("kpi keys:", Object.keys(kpiData))
+    if (missingWidgetFields.length > 0) {
+      console.warn("[Dashboard] Missing KPI fields for widgets:", missingWidgetFields)
+    }
     console.log("mapped widget values:", {
-      total_users: kpis.data.total_users,
-      active_barbers: kpis.data.active_barbers,
-      active_salons: kpis.data.active_salons,
-      bookings_today: kpis.data.bookings_today,
-      revenue_today: kpis.data.revenue_today,
-      active_tickets: kpis.data.active_tickets,
-      failed_jobs: kpis.data.failed_jobs,
-      system_status: kpis.data.system_status,
+      total_users: kpiData.total_users,
+      active_barbers: kpiData.active_barbers,
+      active_salons: kpiData.active_salons,
+      bookings_today: kpiData.bookings_today,
+      revenue_today: kpiData.revenue_today,
+      active_tickets: kpiData.active_tickets,
+      failed_jobs: kpiData.failed_jobs,
+      system_status: kpiData.system_status,
     })
     console.groupEnd()
   }, [kpis.data])
@@ -100,6 +113,17 @@ export default function DashboardPage() {
     return <ErrorState message={errorMsg} />
   }
 
+  const displayKpis = {
+    total_users: kpis.data.total_users ?? 0,
+    active_barbers: kpis.data.active_barbers ?? 0,
+    active_salons: kpis.data.active_salons ?? 0,
+    bookings_today: kpis.data.bookings_today ?? kpis.data.bookings_total ?? 0,
+    revenue_today: kpis.data.revenue_today ?? kpis.data.revenue_completed ?? 0,
+    active_tickets: kpis.data.active_tickets ?? 0,
+    failed_jobs: kpis.data.failed_jobs ?? 0,
+    system_status: kpis.data.system_status ?? "operational",
+  }
+
   return (
     <div className="space-y-6">
       <div>
@@ -108,14 +132,14 @@ export default function DashboardPage() {
       </div>
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatsWidget label="Total Users" value={String(kpis.data.total_users)} icon={Users} delta={6.2} />
-        <StatsWidget label="Active Barbers" value={String(kpis.data.active_barbers)} icon={Scissors} delta={2.8} />
-        <StatsWidget label="Active Salons" value={String(kpis.data.active_salons)} icon={Store} delta={4.1} />
-        <StatsWidget label="Bookings Today" value={String(kpis.data.bookings_today)} icon={CalendarDays} delta={3.3} />
-        <StatsWidget label="Revenue Today" value={`${kpis.data.revenue_today} EUR`} icon={BadgeDollarSign} delta={5.4} />
-        <StatsWidget label="Open Support Tickets" value={String(kpis.data.active_tickets)} icon={Ticket} delta={-1.4} />
-        <StatsWidget label="Failed Jobs" value={String(kpis.data.failed_jobs)} icon={AlertTriangle} delta={-7.1} />
-        <StatsWidget label="System Status" value={kpis.data.system_status} icon={Activity} />
+        <StatsWidget label="Total Users" value={String(displayKpis.total_users)} icon={Users} delta={6.2} />
+        <StatsWidget label="Active Barbers" value={String(displayKpis.active_barbers)} icon={Scissors} delta={2.8} />
+        <StatsWidget label="Active Salons" value={String(displayKpis.active_salons)} icon={Store} delta={4.1} />
+        <StatsWidget label="Bookings Today" value={String(displayKpis.bookings_today)} icon={CalendarDays} delta={3.3} />
+        <StatsWidget label="Revenue Today" value={`${displayKpis.revenue_today} EUR`} icon={BadgeDollarSign} delta={5.4} />
+        <StatsWidget label="Open Support Tickets" value={String(displayKpis.active_tickets)} icon={Ticket} delta={-1.4} />
+        <StatsWidget label="Failed Jobs" value={String(displayKpis.failed_jobs)} icon={AlertTriangle} delta={-7.1} />
+        <StatsWidget label="System Status" value={displayKpis.system_status} icon={Activity} />
       </section>
 
       <section className="grid gap-4 xl:grid-cols-2">
