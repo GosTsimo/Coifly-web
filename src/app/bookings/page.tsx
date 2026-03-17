@@ -31,8 +31,8 @@ export default function BookingsPage() {
   const columns = useMemo<ColumnDef<Booking>[]>(
     () => [
       { accessorKey: "id", header: "Booking ID" },
-      { accessorFn: (row) => row.client.name, id: "client", header: "Client" },
-      { accessorFn: (row) => row.salon.name, id: "salon", header: "Salon" },
+      { accessorFn: (row) => row.client?.name ?? `Client #${row.client_id ?? "N/A"}`, id: "client", header: "Client" },
+      { accessorFn: (row) => row.salon?.name ?? `Salon #${row.salon_id ?? "N/A"}`, id: "salon", header: "Salon" },
       { accessorKey: "booking_date", header: "Date" },
       { accessorFn: (row) => `${row.total_price} EUR`, id: "price", header: "Price" },
       { accessorKey: "status", header: "Status", cell: ({ row }) => <StatusBadge status={row.original.status} /> },

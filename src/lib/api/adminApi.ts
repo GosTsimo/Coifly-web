@@ -166,7 +166,16 @@ export const adminApi = {
   },
 
   async getDashboardKpis(days = 30) {
-    return apiFetch<DashboardKpis>(`/admin/kpis${buildQuery({ days })}`)
+    const query = buildQuery({ days })
+    try {
+      return await apiFetch<DashboardKpis>(`/admin/kpis${query}`)
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : ""
+      if (msg.toLowerCase().includes("could not be found") || msg.includes("404")) {
+        return apiFetch<DashboardKpis>(`/admin/dashboard/kpis${query}`)
+      }
+      throw error
+    }
   },
 
   async getTrends(): Promise<ApiEnvelope<TrendPoint[]>> {
