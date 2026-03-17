@@ -84,7 +84,7 @@ export function useModerateBarber() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (payload: { barberId: number; status: ModerationStatus; reason?: string }) =>
-      adminApi.moderateBarber(payload.barberId, payload),
+      adminApi.moderateBarber(payload.barberId, { status: payload.status, reason: payload.reason }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["admin", "barbers"] }),
   })
 }
@@ -105,7 +105,7 @@ export function useModerateSalon() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (payload: { salonId: number; status: ModerationStatus; reason?: string }) =>
-      adminApi.moderateSalon(payload.salonId, payload),
+      adminApi.moderateSalon(payload.salonId, { status: payload.status, reason: payload.reason }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["admin", "salons"] }),
   })
 }

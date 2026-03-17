@@ -30,7 +30,11 @@ export default function SalonsPage() {
           <ActionDropdown
             actions={[
               { label: "Approve", onClick: () => moderate.mutate({ salonId: row.original.id, status: "approved" }) },
-              { label: "Reject", onClick: () => moderate.mutate({ salonId: row.original.id, status: "refused" }), destructive: true },
+              {
+                label: "Reject",
+                onClick: () => moderate.mutate({ salonId: row.original.id, status: "refused", reason: "Refused by admin moderation" }),
+                destructive: true,
+              },
               { label: "View", onClick: () => window.alert(`View salon ${row.original.id}`) },
             ]}
           />
