@@ -1,12 +1,13 @@
 import { useRef } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
 import { ArrowRight, Play, Sparkles, Calendar, Star, Users } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 // Particle Component
-const Particle = ({ delay }: { delay: number }) => {
-  const randomX = Math.random() * 100;
-  const randomY = Math.random() * 100;
-  const duration = 3 + Math.random() * 4;
+const Particle = ({ delay, index, reduced }: { delay: number; index: number; reduced?: boolean }) => {
+  const randomX = (index * 37) % 100;
+  const randomY = (index * 53) % 100;
+  const duration = reduced ? 5 : 3 + ((index * 17) % 4);
   
   return (
     <motion.div
@@ -241,6 +242,9 @@ const StatCard = ({
 
 export default function Hero() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const isMobile = useIsMobile();
+  const prefersReducedMotion = useReducedMotion();
+  const reduceEffects = isMobile || prefersReducedMotion;
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end start"]
@@ -261,16 +265,24 @@ export default function Hero() {
         <div className="absolute inset-0 bg-gradient-radial from-gold/5 via-transparent to-transparent" />
         
         {/* Glow Orbs */}
-        <GlowOrb className="top-20 -left-32" size={500} />
-        <GlowOrb className="bottom-20 -right-32" color="secondary" size={400} />
-        <GlowOrb className="top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" size={600} />
+        {!reduceEffects ? (
+          <>
+            <GlowOrb className="top-20 -left-32" size={500} />
+            <GlowOrb className="bottom-20 -right-32" color="secondary" size={400} />
+            <GlowOrb className="top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" size={600} />
+          </>
+        ) : (
+          <GlowOrb className="top-20 -left-32" size={280} />
+        )}
         
         {/* Particles */}
-        <div className="absolute inset-0 overflow-hidden">
-          {[...Array(30)].map((_, i) => (
-            <Particle key={i} delay={i * 0.2} />
-          ))}
-        </div>
+        {!reduceEffects ? (
+          <div className="absolute inset-0 overflow-hidden">
+            {[...Array(24)].map((_, i) => (
+              <Particle key={i} delay={i * 0.2} index={i} />
+            ))}
+          </div>
+        ) : null}
         
         {/* Grid Pattern */}
         <div 
@@ -287,7 +299,7 @@ export default function Hero() {
 
       {/* Content */}
       <motion.div 
-        style={{ y, opacity }}
+        style={reduceEffects ? undefined : { y, opacity }}
         className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-20"
       >
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
@@ -370,59 +382,63 @@ export default function Hero() {
             <PhoneMockup />
             
             {/* Floating Elements Around Phone */}
-            <FloatingElement 
-              delay={0} 
-              duration={5}
-              className="absolute -top-4 -left-4 lg:left-0"
-            >
-              <div className="bg-dark-surface/80 backdrop-blur-sm rounded-xl p-3 border border-gold/20 shadow-lg">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center">
-                    <span className="text-green-500 text-lg">✓</span>
+            {!reduceEffects ? (
+              <>
+                <FloatingElement 
+                  delay={0} 
+                  duration={5}
+                  className="absolute -top-4 -left-4 lg:left-0"
+                >
+                  <div className="bg-dark-surface/80 backdrop-blur-sm rounded-xl p-3 border border-gold/20 shadow-lg">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center">
+                        <span className="text-green-500 text-lg">✓</span>
+                      </div>
+                      <div>
+                        <div className="text-white text-sm font-medium">Réservation confirmée</div>
+                        <div className="text-text-muted text-xs">Il y a 2 min</div>
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <div className="text-white text-sm font-medium">Réservation confirmée</div>
-                    <div className="text-text-muted text-xs">Il y a 2 min</div>
+                </FloatingElement>
+                
+                <FloatingElement 
+                  delay={1} 
+                  duration={6}
+                  className="absolute top-1/4 -right-4 lg:right-0"
+                >
+                  <div className="bg-dark-surface/80 backdrop-blur-sm rounded-xl p-3 border border-gold/20 shadow-lg">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-full bg-gold/20 flex items-center justify-center">
+                        <Star className="w-4 h-4 text-gold fill-gold" />
+                      </div>
+                      <div>
+                        <div className="text-white text-sm font-medium">Nouvel avis 5★</div>
+                        <div className="text-text-muted text-xs">Beauty Luxe</div>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-            </FloatingElement>
-            
-            <FloatingElement 
-              delay={1} 
-              duration={6}
-              className="absolute top-1/4 -right-4 lg:right-0"
-            >
-              <div className="bg-dark-surface/80 backdrop-blur-sm rounded-xl p-3 border border-gold/20 shadow-lg">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-full bg-gold/20 flex items-center justify-center">
-                    <Star className="w-4 h-4 text-gold fill-gold" />
+                </FloatingElement>
+                
+                <FloatingElement 
+                  delay={2} 
+                  duration={5.5}
+                  className="absolute -bottom-4 left-1/4"
+                >
+                  <div className="bg-dark-surface/80 backdrop-blur-sm rounded-xl p-3 border border-gold/20 shadow-lg">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-full bg-gold/20 flex items-center justify-center">
+                        <span className="text-gold text-lg">💰</span>
+                      </div>
+                      <div>
+                        <div className="text-white text-sm font-medium">+850 MAD</div>
+                        <div className="text-text-muted text-xs">Aujourd'hui</div>
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <div className="text-white text-sm font-medium">Nouvel avis 5★</div>
-                    <div className="text-text-muted text-xs">Beauty Luxe</div>
-                  </div>
-                </div>
-              </div>
-            </FloatingElement>
-            
-            <FloatingElement 
-              delay={2} 
-              duration={5.5}
-              className="absolute -bottom-4 left-1/4"
-            >
-              <div className="bg-dark-surface/80 backdrop-blur-sm rounded-xl p-3 border border-gold/20 shadow-lg">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-full bg-gold/20 flex items-center justify-center">
-                    <span className="text-gold text-lg">💰</span>
-                  </div>
-                  <div>
-                    <div className="text-white text-sm font-medium">+850 MAD</div>
-                    <div className="text-text-muted text-xs">Revenus aujourd'hui</div>
-                  </div>
-                </div>
-              </div>
-            </FloatingElement>
+                </FloatingElement>
+              </>
+            ) : null}
           </div>
         </div>
       </motion.div>
