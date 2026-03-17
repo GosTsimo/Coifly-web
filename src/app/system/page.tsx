@@ -2,7 +2,6 @@ import { useMemo, useState } from "react"
 import { type ColumnDef } from "@tanstack/react-table"
 import { Card } from "@/components/dashboard/Card"
 import { PageHeader } from "@/components/dashboard/PageHeader"
-import { StatusBadge } from "@/components/dashboard/StatusBadge"
 import { DataTable } from "@/components/tables/DataTable"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -47,25 +46,32 @@ export default function SystemPage() {
     () => [
       { accessorKey: "service_name", header: "Service" },
       { accessorKey: "service_key", header: "Key" },
-      { accessorKey: "status", header: "Status", cell: ({ row }) => <StatusBadge status={row.original.status} /> },
-      { accessorKey: "updated_at", header: "Updated at" },
       {
-        id: "active",
-        header: "Toggle active",
+        accessorKey: "status",
+        header: "Status",
         cell: ({ row }) => (
-          <Switch
-            checked={row.original.is_active}
-            onCheckedChange={(checked) => {
-              const nextStatus: ServiceStatus = checked ? "operational" : "outage"
+          <Select
+            value={row.original.status}
+            onValueChange={(nextStatus: ServiceStatus) =>
               update.mutate({
                 serviceKey: row.original.service_key,
                 status: nextStatus,
-                is_active: checked,
+                is_active: nextStatus !== "outage",
               })
-            }}
-          />
+            }
+          >
+            <SelectTrigger className="w-[150px]">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="operational">Operational</SelectItem>
+              <SelectItem value="degraded">Degraded</SelectItem>
+              <SelectItem value="outage">Outage</SelectItem>
+            </SelectContent>
+          </Select>
         ),
       },
+      { accessorKey: "updated_at", header: "Updated at" },
     ],
     [update]
   )
