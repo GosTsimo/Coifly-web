@@ -262,6 +262,19 @@ export const adminApi = {
     })
   },
 
+  async createSystemService(payload: {
+    service_key: string
+    service_name: string
+    status: ServiceStatus
+    is_active: boolean
+    sort_order?: number
+  }) {
+    return apiFetch<SystemService>(`/admin/system/statuses`, {
+      method: "POST",
+      body: JSON.stringify(payload),
+    })
+  },
+
   async getAuditLogs(page = 1, per_page = 10) {
     return apiFetch<PaginatedResponse<AuditLog>>(`/admin/audit-logs${buildQuery({ page, per_page })}`)
   },
