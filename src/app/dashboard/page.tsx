@@ -25,7 +25,7 @@ function formatTrendDate(input: string) {
 }
 
 function formatCurrency(value: number) {
-  return new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(value)
+  return new Intl.NumberFormat("fr-MA", { style: "currency", currency: "MAD", maximumFractionDigits: 0 }).format(value)
 }
 
 function ChartTooltip({ active, payload, label }: { active?: boolean; payload?: Array<{ name?: string; value?: number }>; label?: string }) {
@@ -58,7 +58,7 @@ export default function DashboardPage() {
       { accessorFn: (row) => row.client?.name ?? `Client #${row.client_id ?? "N/A"}`, id: "client", header: "Client" },
       { accessorFn: (row) => row.salon?.name ?? `Salon #${row.salon_id ?? "N/A"}`, id: "salon", header: "Salon" },
       { accessorKey: "booking_date", header: "Date" },
-      { accessorFn: (row) => `${row.total_price} EUR`, id: "price", header: "Price" },
+      { accessorFn: (row) => `${row.total_price} MAD`, id: "price", header: "Price" },
       {
         accessorKey: "status",
         header: "Status",
@@ -134,7 +134,7 @@ export default function DashboardPage() {
     },
     {
       label: "Revenue Completed",
-      value: `${kpis.data.revenue_completed ?? 0} EUR`,
+      value: `${kpis.data.revenue_completed ?? 0} MAD`,
       icon: BadgeDollarSign,
     },
     { label: "Active Tickets", value: String(kpis.data.active_tickets ?? 0), icon: Ticket },
@@ -199,7 +199,7 @@ export default function DashboardPage() {
               <XAxis dataKey="shortDate" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} minTickGap={24} />
               <YAxis
                 tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
-                tickFormatter={(value) => `${value}€`}
+                tickFormatter={(value) => `${value} MAD`}
               />
               <Tooltip
                 content={({ active, payload, label }) => {
