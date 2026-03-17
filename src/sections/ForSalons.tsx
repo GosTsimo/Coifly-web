@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { motion, useInView } from 'framer-motion';
+import { motion, useInView, useReducedMotion } from 'framer-motion';
 import { 
   Building2, 
   Users, 
@@ -13,6 +13,7 @@ import {
   Star,
   Shield
 } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const features = [
   {
@@ -52,13 +53,16 @@ const staffMembers = [
 
 export default function ForSalons() {
   const sectionRef = useRef(null);
+  const isMobile = useIsMobile();
+  const reduceMotion = useReducedMotion();
+  const shouldReduceFx = isMobile || reduceMotion;
   const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
 
   return (
     <section id="salons" className="relative py-32 bg-dark overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0">
-        <div className="absolute bottom-0 left-1/4 w-[600px] h-[600px] bg-gold/5 rounded-full blur-3xl" />
+        <div className={`absolute bottom-0 left-1/4 rounded-full ${shouldReduceFx ? 'w-[380px] h-[380px] bg-gold/5 blur-2xl' : 'w-[600px] h-[600px] bg-gold/5 blur-3xl'}`} />
       </div>
 
       <div ref={sectionRef} className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -158,7 +162,7 @@ export default function ForSalons() {
           >
             <div className="relative">
               {/* Glow */}
-              <div className="absolute -inset-10 bg-gold/10 rounded-full blur-3xl" />
+              {!shouldReduceFx && <div className="absolute -inset-10 bg-gold/10 rounded-full blur-3xl" />}
               
               {/* Dashboard */}
               <div className="relative bg-dark-surface rounded-3xl border border-gold/20 overflow-hidden shadow-2xl">

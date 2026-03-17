@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { motion, useInView } from 'framer-motion';
+import { motion, useInView, useReducedMotion } from 'framer-motion';
 import { 
   TrendingUp, 
   Target, 
@@ -12,6 +12,7 @@ import {
   MapPin,
   Scissors
 } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const metrics = [
   {
@@ -78,13 +79,16 @@ const investmentHighlights = [
 
 export default function ForInvestors() {
   const sectionRef = useRef(null);
+  const isMobile = useIsMobile();
+  const reduceMotion = useReducedMotion();
+  const shouldReduceFx = isMobile || reduceMotion;
   const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
 
   return (
     <section id="investors" className="relative py-32 bg-dark-surface overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] bg-gold/5 rounded-full blur-3xl" />
+        <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full ${shouldReduceFx ? 'w-[500px] h-[500px] bg-gold/5 blur-2xl' : 'w-[1000px] h-[1000px] bg-gold/5 blur-3xl'}`} />
       </div>
 
       <div ref={sectionRef} className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -179,7 +183,7 @@ export default function ForInvestors() {
                   {/* Year Badge */}
                   <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 relative z-10 ${
                     milestone.status === 'completed' ? 'bg-gold' :
-                    milestone.status === 'current' ? 'bg-gold animate-pulse' :
+                    milestone.status === 'current' ? `bg-gold ${shouldReduceFx ? '' : 'animate-pulse'}` :
                     'bg-dark-surface border-2 border-gold/30'
                   }`}>
                     <span className={`text-lg font-bold ${
@@ -268,7 +272,7 @@ export default function ForInvestors() {
           >
             <div className="relative">
               {/* Glow */}
-              <div className="absolute -inset-10 bg-gold/10 rounded-full blur-3xl" />
+              {!shouldReduceFx && <div className="absolute -inset-10 bg-gold/10 rounded-full blur-3xl" />}
               
               {/* Market Size Card */}
               <div className="relative bg-dark rounded-3xl border border-gold/20 p-8 shadow-2xl">

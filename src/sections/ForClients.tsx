@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { motion, useInView } from 'framer-motion';
+import { motion, useInView, useReducedMotion } from 'framer-motion';
 import { 
   Search, 
   Calendar, 
@@ -9,6 +9,7 @@ import {
   Heart,
   MapPin
 } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const steps = [
   {
@@ -52,13 +53,16 @@ const benefits = [
 
 export default function ForClients() {
   const sectionRef = useRef(null);
+  const isMobile = useIsMobile();
+  const reduceMotion = useReducedMotion();
+  const shouldReduceFx = isMobile || reduceMotion;
   const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
 
   return (
     <section id="clients" className="relative py-32 bg-dark overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0">
-        <div className="absolute top-1/2 left-0 w-[600px] h-[600px] bg-gold/5 rounded-full blur-3xl -translate-y-1/2" />
+        <div className={`absolute top-1/2 left-0 rounded-full -translate-y-1/2 ${shouldReduceFx ? 'w-[380px] h-[380px] bg-gold/5 blur-2xl' : 'w-[600px] h-[600px] bg-gold/5 blur-3xl'}`} />
       </div>
 
       <div ref={sectionRef} className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -111,7 +115,7 @@ export default function ForClients() {
           >
             <div className="relative w-[280px]">
               {/* Glow */}
-              <div className="absolute -inset-10 bg-gold/10 rounded-full blur-3xl" />
+              {!shouldReduceFx && <div className="absolute -inset-10 bg-gold/10 rounded-full blur-3xl" />}
               
               {/* Phone */}
               <div className="relative bg-dark-surface rounded-[2.5rem] border-4 border-gold/30 overflow-hidden shadow-2xl">
@@ -191,27 +195,31 @@ export default function ForClients() {
               </div>
               
               {/* Floating Elements */}
-              <motion.div
-                animate={{ y: [0, -10, 0] }}
-                transition={{ duration: 3, repeat: Infinity }}
-                className="absolute -top-4 -right-8 bg-dark-surface rounded-xl p-3 border border-gold/20 shadow-lg"
-              >
-                <div className="flex items-center gap-2">
-                  <Star className="w-4 h-4 text-gold fill-gold" />
-                  <span className="text-white text-sm font-medium">4.9</span>
-                </div>
-              </motion.div>
-              
-              <motion.div
-                animate={{ y: [0, 10, 0] }}
-                transition={{ duration: 4, repeat: Infinity }}
-                className="absolute -bottom-4 -left-8 bg-dark-surface rounded-xl p-3 border border-green-500/20 shadow-lg"
-              >
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-green-500" />
-                  <span className="text-white text-sm">Ouvert maintenant</span>
-                </div>
-              </motion.div>
+              {!shouldReduceFx && (
+                <>
+                  <motion.div
+                    animate={{ y: [0, -10, 0] }}
+                    transition={{ duration: 3, repeat: Infinity }}
+                    className="absolute -top-4 -right-8 bg-dark-surface rounded-xl p-3 border border-gold/20 shadow-lg"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Star className="w-4 h-4 text-gold fill-gold" />
+                      <span className="text-white text-sm font-medium">4.9</span>
+                    </div>
+                  </motion.div>
+
+                  <motion.div
+                    animate={{ y: [0, 10, 0] }}
+                    transition={{ duration: 4, repeat: Infinity }}
+                    className="absolute -bottom-4 -left-8 bg-dark-surface rounded-xl p-3 border border-green-500/20 shadow-lg"
+                  >
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-green-500" />
+                      <span className="text-white text-sm">Ouvert maintenant</span>
+                    </div>
+                  </motion.div>
+                </>
+              )}
             </div>
           </motion.div>
         </div>

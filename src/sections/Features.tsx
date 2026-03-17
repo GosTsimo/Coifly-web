@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { motion, useInView } from 'framer-motion';
+import { motion, useInView, useReducedMotion } from 'framer-motion';
 import { 
   Calendar, 
   Users, 
@@ -12,6 +12,7 @@ import {
   Shield,
   Zap
 } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const features = [
   {
@@ -83,10 +84,12 @@ const barberFeatures = [
 
 const FeatureCard = ({ 
   feature, 
-  index 
+  index,
+  shouldReduceFx
 }: { 
   feature: typeof features[0]; 
   index: number;
+  shouldReduceFx: boolean;
 }) => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
@@ -101,7 +104,7 @@ const FeatureCard = ({
     >
       <div className="relative h-full bg-dark-surface rounded-2xl p-6 border border-gold/10 overflow-hidden transition-all duration-500 hover:border-gold/30 hover:shadow-card-hover">
         {/* Gradient Background */}
-        <div className={`absolute inset-0 bg-gradient-to-br ${feature.color} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+        <div className={`absolute inset-0 bg-gradient-to-br ${feature.color} ${shouldReduceFx ? 'opacity-0' : 'opacity-0 group-hover:opacity-100'} transition-opacity duration-500`} />
         
         {/* Content */}
         <div className="relative z-10">
@@ -122,7 +125,7 @@ const FeatureCard = ({
         </div>
         
         {/* Corner Glow */}
-        <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-gold/10 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+        {!shouldReduceFx && <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-gold/10 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />}
       </div>
     </motion.div>
   );
@@ -159,14 +162,17 @@ const BarberFeatureCard = ({
 
 export default function Features() {
   const sectionRef = useRef(null);
+  const isMobile = useIsMobile();
+  const reduceMotion = useReducedMotion();
+  const shouldReduceFx = Boolean(isMobile) || Boolean(reduceMotion);
   const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
 
   return (
     <section id="features" className="relative py-32 bg-dark overflow-hidden">
       {/* Background Effects */}
       <div className="absolute inset-0">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-gold/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-gold/5 rounded-full blur-3xl" />
+        <div className={`absolute top-0 left-1/4 rounded-full ${shouldReduceFx ? 'w-64 h-64 bg-gold/5 blur-2xl' : 'w-96 h-96 bg-gold/5 blur-3xl'}`} />
+        <div className={`absolute bottom-0 right-1/4 rounded-full ${shouldReduceFx ? 'w-64 h-64 bg-gold/5 blur-2xl' : 'w-96 h-96 bg-gold/5 blur-3xl'}`} />
       </div>
 
       <div ref={sectionRef} className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -205,7 +211,7 @@ export default function Features() {
         {/* Features Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-32">
           {features.map((feature, index) => (
-            <FeatureCard key={feature.title} feature={feature} index={index} />
+            <FeatureCard key={feature.title} feature={feature} index={index} shouldReduceFx={shouldReduceFx} />
           ))}
         </div>
 
@@ -247,7 +253,7 @@ export default function Features() {
           >
             <div className="relative">
               {/* Glow Effect */}
-              <div className="absolute -inset-10 bg-gold/10 rounded-full blur-3xl" />
+              {!shouldReduceFx && <div className="absolute -inset-10 bg-gold/10 rounded-full blur-3xl" />}
               
               {/* Dashboard Preview */}
               <div className="relative bg-dark-surface rounded-3xl border border-gold/20 p-6 shadow-2xl">
@@ -311,21 +317,23 @@ export default function Features() {
               </div>
               
               {/* Floating Badge */}
-              <motion.div
-                animate={{ y: [0, -10, 0] }}
-                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute -top-4 -right-4 bg-dark-surface rounded-xl p-3 border border-gold/30 shadow-lg"
-              >
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center">
-                    <span className="text-green-500">+</span>
+              {!shouldReduceFx && (
+                <motion.div
+                  animate={{ y: [0, -10, 0] }}
+                  transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                  className="absolute -top-4 -right-4 bg-dark-surface rounded-xl p-3 border border-gold/30 shadow-lg"
+                >
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center">
+                      <span className="text-green-500">+</span>
+                    </div>
+                    <div>
+                      <div className="text-white text-sm font-medium">Nouveau RDV</div>
+                      <div className="text-text-muted text-xs">Salma · 16:00</div>
+                    </div>
                   </div>
-                  <div>
-                    <div className="text-white text-sm font-medium">Nouveau RDV</div>
-                    <div className="text-text-muted text-xs">Salma · 16:00</div>
-                  </div>
-                </div>
-              </motion.div>
+                </motion.div>
+              )}
             </div>
           </motion.div>
         </div>

@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
-import { motion, useInView, AnimatePresence } from 'framer-motion';
+import { motion, useInView, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Smartphone, Calendar, Star, Users, Clock, Scissors, TrendingUp, Bell, Settings, CheckCircle } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const screens = [
   {
@@ -40,14 +41,19 @@ const PhoneScreen = ({
   screen, 
   isActive,
   index,
-  total
+  total,
+  isMobile,
+  reduceMotion
 }: { 
   screen: typeof screens[0]; 
   isActive: boolean;
   index: number;
   total: number;
+  isMobile: boolean;
+  reduceMotion: boolean;
 }) => {
   const getTransform = () => {
+    if (isMobile || reduceMotion) return 'translateX(0) scale(1) rotateY(0deg)';
     if (isActive) return 'translateX(0) scale(1) rotateY(0deg)';
     const offset = index - Math.floor(total / 2);
     const direction = offset > 0 ? 1 : -1;
@@ -68,7 +74,7 @@ const PhoneScreen = ({
 
   return (
     <motion.div
-      className="absolute w-[260px] h-[540px]"
+      className={`absolute w-[260px] ${isMobile ? 'h-[520px]' : 'h-[540px]'}`}
       style={{
         transform: getTransform(),
         zIndex: getZIndex(),
@@ -85,7 +91,7 @@ const PhoneScreen = ({
       {/* Phone Frame */}
       <div className="relative w-full h-full">
         {/* Glow */}
-        {isActive && (
+        {isActive && !isMobile && !reduceMotion && (
           <div className={`absolute -inset-4 bg-gradient-to-br ${screen.color} rounded-[3rem] blur-2xl opacity-50`} />
         )}
         
@@ -430,8 +436,12 @@ const PhoneScreen = ({
 
 export default function AppScreens() {
   const sectionRef = useRef(null);
+  const isMobile = useIsMobile();
+  const reduceMotion = useReducedMotion();
+  const shouldReduceFx = isMobile || reduceMotion;
   const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
   const [activeIndex, setActiveIndex] = useState(2);
+  const visibleScreens = shouldReduceFx ? [screens[activeIndex]] : screens;
 
   const nextSlide = () => {
     setActiveIndex((prev) => (prev + 1) % screens.length);
@@ -445,7 +455,7 @@ export default function AppScreens() {
     <section className="relative py-32 bg-dark overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gold/5 rounded-full blur-3xl" />
+        <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full ${shouldReduceFx ? 'w-[420px] h-[420px] bg-gold/5 blur-2xl' : 'w-[800px] h-[800px] bg-gold/5 blur-3xl'}`} />
       </div>
 
       <div ref={sectionRef} className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -488,15 +498,17 @@ export default function AppScreens() {
           className="relative"
         >
           {/* Carousel Container */}
-          <div className="relative h-[600px] flex items-center justify-center" style={{ perspective: '1000px' }}>
+          <div className={`relative ${shouldReduceFx ? 'h-[520px]' : 'h-[600px]'} flex items-center justify-center`} style={{ perspective: shouldReduceFx ? 'none' : '1000px' }}>
             <AnimatePresence mode="popLayout">
-              {screens.map((screen, index) => (
+              {visibleScreens.map((screen, index) => (
                 <PhoneScreen
                   key={screen.id}
                   screen={screen}
-                  isActive={index === activeIndex}
+                  isActive={shouldReduceFx ? true : index === activeIndex}
                   index={index}
-                  total={screens.length}
+                  total={visibleScreens.length}
+                  isMobile={isMobile}
+                  reduceMotion={!!reduceMotion}
                 />
               ))}
             </AnimatePresence>

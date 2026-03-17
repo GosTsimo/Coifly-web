@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { motion, useInView } from 'framer-motion';
+import { motion, useInView, useReducedMotion } from 'framer-motion';
 import { 
   TrendingUp, 
   Calendar, 
@@ -11,6 +11,7 @@ import {
   Wallet,
   Bell
 } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const benefits = [
   {
@@ -43,13 +44,16 @@ const stats = [
 
 export default function ForBarbers() {
   const sectionRef = useRef(null);
+  const isMobile = useIsMobile();
+  const reduceMotion = useReducedMotion();
+  const shouldReduceFx = isMobile || reduceMotion;
   const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
 
   return (
     <section id="barbers" className="relative py-32 bg-dark-surface overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0">
-        <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-gold/5 rounded-full blur-3xl" />
+        <div className={`absolute top-0 right-0 rounded-full ${shouldReduceFx ? 'w-[420px] h-[420px] bg-gold/5 blur-2xl' : 'w-[800px] h-[800px] bg-gold/5 blur-3xl'}`} />
       </div>
 
       <div ref={sectionRef} className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -111,7 +115,7 @@ export default function ForBarbers() {
           >
             <div className="relative">
               {/* Glow */}
-              <div className="absolute -inset-10 bg-gold/10 rounded-full blur-3xl" />
+              {!shouldReduceFx && <div className="absolute -inset-10 bg-gold/10 rounded-full blur-3xl" />}
               
               {/* Dashboard Card */}
               <div className="relative bg-dark rounded-3xl border border-gold/20 p-6 shadow-2xl">
@@ -127,7 +131,7 @@ export default function ForBarbers() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                      <div className={`w-2 h-2 rounded-full bg-green-500 ${shouldReduceFx ? '' : 'animate-pulse'}`} />
                     <span className="text-green-500 text-sm">Disponible</span>
                   </div>
                 </div>
@@ -209,21 +213,23 @@ export default function ForBarbers() {
               </div>
 
               {/* Floating Notification */}
-              <motion.div
-                animate={{ y: [0, -10, 0] }}
-                transition={{ duration: 3, repeat: Infinity }}
-                className="absolute -top-4 -right-4 bg-dark rounded-xl p-3 border border-gold/20 shadow-lg"
-              >
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-full bg-gold/20 flex items-center justify-center">
-                    <Bell className="w-4 h-4 text-gold" />
+              {!shouldReduceFx && (
+                <motion.div
+                  animate={{ y: [0, -10, 0] }}
+                  transition={{ duration: 3, repeat: Infinity }}
+                  className="absolute -top-4 -right-4 bg-dark rounded-xl p-3 border border-gold/20 shadow-lg"
+                >
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-full bg-gold/20 flex items-center justify-center">
+                      <Bell className="w-4 h-4 text-gold" />
+                    </div>
+                    <div>
+                      <div className="text-white text-sm font-medium">Nouveau RDV</div>
+                      <div className="text-text-muted text-xs">15:00 - Coupe</div>
+                    </div>
                   </div>
-                  <div>
-                    <div className="text-white text-sm font-medium">Nouveau RDV</div>
-                    <div className="text-text-muted text-xs">15:00 - Coupe</div>
-                  </div>
-                </div>
-              </motion.div>
+                </motion.div>
+              )}
             </div>
           </motion.div>
 

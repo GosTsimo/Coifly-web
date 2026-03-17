@@ -1,6 +1,7 @@
 import { useRef } from 'react';
-import { motion, useInView } from 'framer-motion';
+import { motion, useInView, useReducedMotion } from 'framer-motion';
 import { Apple, Play, Sparkles, Star, Download, Shield } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const stats = [
   { value: '4.9', label: 'App Store', icon: Star },
@@ -10,13 +11,16 @@ const stats = [
 
 export default function DownloadSection() {
   const sectionRef = useRef(null);
+  const isMobile = useIsMobile();
+  const reduceMotion = useReducedMotion();
+  const shouldReduceFx = isMobile || reduceMotion;
   const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
 
   return (
     <section id="download" className="relative py-32 bg-dark overflow-hidden">
       {/* Background Effects */}
       <div className="absolute inset-0">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] bg-gold/10 rounded-full blur-3xl" />
+        <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full ${shouldReduceFx ? 'w-[480px] h-[480px] bg-gold/8 blur-2xl' : 'w-[1000px] h-[1000px] bg-gold/10 blur-3xl'}`} />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-gold/5 to-transparent" />
       </div>
 
@@ -30,7 +34,7 @@ export default function DownloadSection() {
           {/* Main Card */}
           <div className="relative bg-dark-surface rounded-3xl border border-gold/20 p-8 sm:p-12 lg:p-16 overflow-hidden">
             {/* Glow Effect */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-gold/20 rounded-full blur-3xl" />
+            {!shouldReduceFx && <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-gold/20 rounded-full blur-3xl" />}
             
             {/* Content */}
             <div className="relative z-10 text-center">
@@ -127,21 +131,25 @@ export default function DownloadSection() {
           </div>
 
           {/* Floating Elements */}
-          <motion.div
-            animate={{ y: [0, -15, 0] }}
-            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute -top-8 -left-8 w-20 h-20 bg-gold/20 rounded-2xl backdrop-blur-sm border border-gold/30 flex items-center justify-center"
-          >
-            <span className="text-3xl">✨</span>
-          </motion.div>
-          
-          <motion.div
-            animate={{ y: [0, 15, 0] }}
-            transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute -bottom-8 -right-8 w-20 h-20 bg-gold/20 rounded-2xl backdrop-blur-sm border border-gold/30 flex items-center justify-center"
-          >
-            <span className="text-3xl">💇</span>
-          </motion.div>
+          {!shouldReduceFx && (
+            <>
+              <motion.div
+                animate={{ y: [0, -15, 0] }}
+                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute -top-8 -left-8 w-20 h-20 bg-gold/20 rounded-2xl backdrop-blur-sm border border-gold/30 flex items-center justify-center"
+              >
+                <span className="text-3xl">✨</span>
+              </motion.div>
+
+              <motion.div
+                animate={{ y: [0, 15, 0] }}
+                transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute -bottom-8 -right-8 w-20 h-20 bg-gold/20 rounded-2xl backdrop-blur-sm border border-gold/30 flex items-center justify-center"
+              >
+                <span className="text-3xl">💇</span>
+              </motion.div>
+            </>
+          )}
         </motion.div>
       </div>
     </section>
