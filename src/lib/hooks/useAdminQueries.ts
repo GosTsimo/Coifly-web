@@ -104,8 +104,21 @@ export function useSalons(page = 1, perPage = 10) {
 export function useModerateSalon() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (payload: { salonId: number; status: ModerationStatus; reason?: string }) =>
-      adminApi.moderateSalon(payload.salonId, { status: payload.status, reason: payload.reason }),
+    mutationFn: async (payload: { salonId: number; status: ModerationStatus; reason?: string }) => {
+      const requestBody = { status: payload.status, reason: payload.reason }
+      console.log("[Salons] Moderation payload:", {
+        salonId: payload.salonId,
+        endpoint: `/api/admin/salons/${payload.salonId}/moderation`,
+        method: "PUT",
+        body: requestBody,
+      })
+      return adminApi.moderateSalon(payload.salonId, requestBody)
+    },
+    onError: (error) => {
+      const message = error instanceof Error ? error.message : "Unknown error"
+      console.error("[Salons] Moderation error message:", message)
+      console.error("[Salons] Moderation error object:", error)
+    },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["admin", "salons"] }),
   })
 }
