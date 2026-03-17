@@ -20,6 +20,7 @@ const statusMap: Record<string, string> = {
   no_show: "bg-orange-700 text-white",
   cancelled: "bg-orange-700 text-white",
   refused: "bg-rose-600 text-white",
+  rejected: "bg-rose-600 text-white",
   banned: "bg-rose-700 text-white",
   outage: "bg-rose-700 text-white",
   critical: "bg-red-700 text-white",

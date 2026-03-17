@@ -18,9 +18,10 @@ export default function SalonsPage() {
     () => [
       { accessorKey: "id", header: "ID" },
       { accessorKey: "name", header: "Salon" },
-      { accessorKey: "owner_name", header: "Owner" },
-      { accessorKey: "city", header: "City" },
-      { accessorKey: "rating", header: "Rating" },
+      { accessorFn: (row) => row.owner?.name ?? `Owner #${row.owner_id}`, id: "owner", header: "Owner" },
+      { accessorFn: (row) => row.address ?? "-", id: "address", header: "Address" },
+      { accessorFn: (row) => row.rating_average ?? 0, id: "rating", header: "Rating" },
+      { accessorFn: (row) => row.reviews_count ?? 0, id: "reviews", header: "Reviews" },
       { accessorKey: "status", header: "Status", cell: ({ row }) => <StatusBadge status={row.original.status} /> },
       {
         id: "actions",
@@ -29,7 +30,7 @@ export default function SalonsPage() {
           <ActionDropdown
             actions={[
               { label: "Approve", onClick: () => moderate.mutate({ salonId: row.original.id, status: "approved" }) },
-              { label: "Reject", onClick: () => moderate.mutate({ salonId: row.original.id, status: "refused" }), destructive: true },
+              { label: "Reject", onClick: () => moderate.mutate({ salonId: row.original.id, status: "rejected" }), destructive: true },
               { label: "View", onClick: () => window.alert(`View salon ${row.original.id}`) },
             ]}
           />

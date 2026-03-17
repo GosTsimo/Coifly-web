@@ -1,6 +1,6 @@
 export type AccountStatus = "active" | "suspended" | "banned"
 export type UserRole = "client" | "barber" | "salon_owner" | "admin"
-export type ModerationStatus = "pending" | "approved" | "refused" | "active" | "inactive"
+export type ModerationStatus = "pending" | "approved" | "refused" | "rejected" | "active" | "inactive"
 export type BookingStatus = "pending" | "confirmed" | "cancelled" | "completed" | "no_show"
 export type ServiceStatus = "operational" | "degraded" | "outage"
 export type TicketStatus = "open" | "pending" | "resolved"
@@ -90,7 +90,16 @@ export interface Salon {
   name: string
   status: ModerationStatus
   is_active: boolean
-  address: string
+  address: string | null
+  owner?: {
+    id: number
+    name: string
+    email: string
+    phone: string
+    photo_url: string | null
+  }
+  rating_average?: number
+  reviews_count?: number
   created_at: string
   updated_at: string
 }
