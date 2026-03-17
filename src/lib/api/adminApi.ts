@@ -23,7 +23,7 @@ import type {
   UserRole,
 } from "@/lib/types/admin"
 
-const API_BASE = "https://beautybooking-f05a760bafaf.herokuapp.com/api"
+const API_BASE = "https://dolphin-app-7nqu4.ondigitalocean.app/api"
 const TOKEN_KEY = "coifly_token"
 
 function getToken(): string | null {
