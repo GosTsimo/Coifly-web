@@ -274,7 +274,7 @@ export default function SalonDetailPage() {
   const todayFrench = JS_DAY_TO_FRENCH[new Date().getDay()];
   const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${salon.latitude},${salon.longitude}`;
   const googleMapsEmbedUrl = `https://www.google.com/maps?q=${salon.latitude},${salon.longitude}&z=15&output=embed`;
-  const appDownloadUrl = 'https://github.com/GosTsimo/Coifly-web/releases/download/v1.0.4/Coifly-v1.0.4.apk';
+  const appDownloadUrl = 'https://github.com/GosTsimo/Coifly-web/releases/download/v1.0.5/coifly-v1.0.5.apk';
   const ratingCounts = [5, 4, 3, 2, 1].map((star) => ({
     star,
     count: reviews.filter((r) => r.rating === star).length,
