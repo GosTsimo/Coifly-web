@@ -1,4 +1,4 @@
-const API_BASE = 'https://dolphin-app-7nqu4.ondigitalocean.app/api';
+const API_BASE = 'https://api.coifly.app/api';
 const TOKEN_KEY = 'coifly_token';
 const USER_KEY = 'coifly_user';
 

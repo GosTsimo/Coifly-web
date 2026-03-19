@@ -34,7 +34,7 @@ export interface CreateBookingPayload {
   barber_assignments: Record<string, number | null>;
 }
 
-const API_BASE = 'https://dolphin-app-7nqu4.ondigitalocean.app/api';
+const API_BASE = 'https://api.coifly.app/api';
 const TOKEN_KEY = 'coifly_token';
 
 function getToken() {

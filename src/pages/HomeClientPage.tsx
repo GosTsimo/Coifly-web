@@ -35,7 +35,7 @@ type FavoriteSalon = {
   salon_url?: string;
 };
 
-const API_BASE = 'https://dolphin-app-7nqu4.ondigitalocean.app/api';
+const API_BASE = 'https://api.coifly.app/api';
 
 const mockUser: UserProfile = {
   id: 0,
