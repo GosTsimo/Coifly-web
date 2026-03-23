@@ -23,7 +23,7 @@ import type {
   UserRole,
 } from "@/lib/types/admin"
 
-const API_BASE = "https://api.coifly.app/api"
+const API_BASE = "https://api1.coifly.app/api"
 const TOKEN_KEY = "coifly_token"
 
 function getToken(): string | null {

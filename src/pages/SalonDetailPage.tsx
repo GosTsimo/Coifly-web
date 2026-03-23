@@ -106,7 +106,7 @@ interface ApiData {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-const API_BASE = 'https://api.coifly.app/api';
+const API_BASE = 'https://api1.coifly.app/api';
 
 function apiHeaders() {
   return {

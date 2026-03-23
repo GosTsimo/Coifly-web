@@ -1,6 +1,6 @@
 import { getStoredToken } from './authService';
 
-const API_BASE = 'https://api.coifly.app/api';
+const API_BASE = 'https://api1.coifly.app/api';
 const FAVORITES_STORAGE_KEY = 'salon_favorite_ids';
 
 export type SearchSalonItem = {
